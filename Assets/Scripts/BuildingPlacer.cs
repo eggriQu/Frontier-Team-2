@@ -1,34 +1,29 @@
-using System;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BuildingPlacer : MonoBehaviour
 {
-    [SerializeField] private Placeable[] placeables;
-    //[SerializeField] private GameObject testPlaceable;
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private GenericPlaceable[] genericPlaceables;
+    [SerializeField] private EconomyPlaceable[] economyPlaceables;
 
-    InputAction clickAction;
     InputAction pointerAction;
     GameObject currentObject;
 
-    private void OnEnable()
-    {
-        //clickAction.Enable();
-        clickAction.performed += OnMouseDown;
-    }
-
     private void Start()
     {
-        clickAction = InputSystem.actions.FindAction("Click");
         pointerAction = InputSystem.actions.FindAction("Pointer");
-        currentObject = GameObject.Instantiate(placeables[0].prefab);
+        currentObject = GameObject.Instantiate(economyPlaceables[0].Prefab);
     }
 
     private void Update()
     {
         //OnClick(clickAction.ReadValue<bool>());
         OnPointer(pointerAction.ReadValue<Vector2>());
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            OnMouseDown();
+        }
     }
 
     public void OnPointer(Vector2 mousePos)
@@ -37,15 +32,23 @@ public class BuildingPlacer : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit))
         {
-            //Debug.Log(hit.point);
             Vector3 rayHit = new(Mathf.Round(hit.point.x), Mathf.Round(hit.point.y), Mathf.Round(hit.point.z));
 
-            currentObject.transform.position = rayHit + placeables[0].transformOffsets;
+            currentObject.transform.position = rayHit + economyPlaceables[0].TransformOffsets;
         }
     }
 
-    private void OnMouseDown(InputAction.CallbackContext context)
+    private void OnMouseDown()
     {
-        currentObject = GameObject.Instantiate(placeables[0].prefab);
+        if (gameManager.Money < economyPlaceables[0].Cost)
+        {
+            Debug.Log("Not enough money!");
+            return;
+        }
+        // check for collision here
+            
+        currentObject = GameObject.Instantiate(economyPlaceables[0].Prefab);
+        gameManager.Money -= economyPlaceables[0].Cost;
+        gameManager.Income += economyPlaceables[0].Income;
     }
 }
