@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GenericPlaceable
   placeableName: Wall
   id: 2
-  prefab: {fileID: 1734015926637023629, guid: f4e3a5ef74058bc4284dd88c237909dd, type: 3}
-  transformOffsets: {x: 0.25, y: 0.5, z: -0.5}
+  prefab: {fileID: 6920508212288844335, guid: 4a523fe0b5cb7214c9c6bdde5901a548, type: 3}
+  transformOffsets: {x: 0, y: 0, z: 0}
   cost: 0
