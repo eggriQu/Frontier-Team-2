@@ -14,18 +14,3 @@ public abstract class BasePlaceable : ScriptableObject
     public Vector3 TransformOffsets { get => transformOffsets; set => transformOffsets = value; }
     public int Cost { get => cost; set => cost = value; }
 }
-
-
-[CreateAssetMenu(fileName = "Placeable", menuName = "Scriptable Objects/EconomyPlaceable")]
-public class EconomyPlaceable : BasePlaceable
-{
-    [SerializeField] private int income;
-
-    public int Income { get => income; set => income = value; }
-}
-
-
-[CreateAssetMenu(fileName = "Placeable", menuName = "Scriptable Objects/GenericPlaceable")]
-public class GenericPlaceable : BasePlaceable
-{
-}
