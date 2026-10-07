@@ -13,38 +13,16 @@ using static UnityEditor.PlayerSettings;
 public class StateController : MonoBehaviour
 {
     public Animator anim;
-    [SerializeField] private State _pState;
-    [SerializeField] private State _lastState;
-    [SerializeField] private State _testState;
-    [SerializeField] private State _startState;
+    [SerializeField] protected State _pState;
+    [SerializeField] protected State _lastState;
+    [SerializeField] protected State _startState;
+
+    public Node currentNode;
+    public Node nodeOfInterest;
+    public List<Node> path = new List<Node>();
 
     public State currentState => _pState;
-    public State previousState => _lastState;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        ChangeState(_startState);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (InputSystem.actions.FindAction("Jump").WasPressedThisFrame())
-        {
-            ChangeState(_testState);
-        }
-    }
-
-    public void ObtainPath()
-    {
-        
-    }
-
-    public void PatrolArea()
-    {
-
-    }
+    public State previousState => _lastState;  
 
     public bool ChangeState(State newState)
     {

@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eebcc809526c39c4e8c3db302178f0b5, type: 3}
-  m_Name: IdleDecision
-  m_EditorClassIdentifier: Assembly-CSharp::DecisionIdle
+  m_Script: {fileID: 11500000, guid: 2a8591b2ca15857458108cdb928c6c70, type: 3}
+  m_Name: DirectWalkAction
+  m_EditorClassIdentifier: Assembly-CSharp::ActionDirectWalk

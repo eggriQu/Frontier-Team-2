@@ -13,7 +13,7 @@ public class ActionIdle : IAction
     public override void Entry(StateController fsm)
     {
         fsm.anim.SetBool("Idle", true);
-        fsm.ObtainPath();
+        fsm.currentState.Execute(fsm);
     }
 
     public override void Execute(StateController fsm)
