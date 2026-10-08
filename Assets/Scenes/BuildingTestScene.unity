@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 337329792}
   - component: {fileID: 337329791}
   - component: {fileID: 337329790}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -391,6 +391,12 @@ MonoBehaviour:
   gameManager: {fileID: 2097826173}
   placeables: []
   testPlaceable: {fileID: 11400000, guid: fca863b47359a944098b65f37da3da16, type: 2}
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!4 &1743766365
 Transform:
   m_ObjectHideFlags: 0
