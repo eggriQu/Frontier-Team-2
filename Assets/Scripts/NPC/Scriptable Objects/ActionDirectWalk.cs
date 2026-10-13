@@ -25,14 +25,21 @@ public class ActionDirectWalk : IAction
     {
         yield return new WaitForSeconds(0.1f);
 
-        if (fsm.nodeOfInterest != null)
+        if (fsm.path != null)
         {
-            fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, fsm.nodeOfInterest);
-            fsm.interestingNodes.Remove(fsm.nodeOfInterest);
+            if (fsm.nodeOfInterest != null)
+            {
+                fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, fsm.nodeOfInterest);
+                fsm.interestingNodes.Remove(fsm.nodeOfInterest);
+            }
+            else
+            {
+                fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, AStarManager.instance.AllNodes()[Random.Range(0, AStarManager.instance.AllNodes().Length)]);
+            }
         }
         else
         {
-            fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, AStarManager.instance.AllNodes()[Random.Range(0, AStarManager.instance.AllNodes().Length)]);
+
         }
     }
 }

@@ -39,10 +39,12 @@ public class StateController : MonoBehaviour
             return false;
         }
 
+        Debug.Log("Exiting: " + currentState?.name);
         currentState?.Exit(this);
         _lastState = _pState;
         _pState = newState;
         currentState.Entry(this);
+        Debug.Log("Entering: " + currentState.name);
 
         return true;
     }
@@ -50,16 +52,17 @@ public class StateController : MonoBehaviour
     public List<Node> FindInterestingNodes()
     {
         List<Node> nodeList = new List<Node>();
+        Node[] nodeArr = AStarManager.instance.AllNodes();
 
-        for (int i = 0; i < AStarManager.instance.AllNodes().Length; i++)
+        for (int i = 0; i < nodeArr.Length - 1; i++)
         {
-            if (AStarManager.instance.AllNodes()[i].hasAttraction)
+            if (nodeArr[i].hasAttraction)
             {
-                nodeList.Add(AStarManager.instance.AllNodes()[i]);
+                nodeList.Add(nodeArr[i]);
             }
         }
 
-        nodeList = interestingNodes;
+        interestingNodes = nodeList;
         return nodeList;
     }
 
