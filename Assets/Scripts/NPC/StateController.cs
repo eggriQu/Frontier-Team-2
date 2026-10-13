@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -19,6 +20,7 @@ public class StateController : MonoBehaviour
 
     public Node currentNode;
     public Node nodeOfInterest;
+    public List<Node> interestingNodes;
     public List<Node> path = new List<Node>();
 
     public State currentState => _pState;
@@ -43,5 +45,27 @@ public class StateController : MonoBehaviour
         currentState.Entry(this);
 
         return true;
+    }
+
+    public List<Node> FindInterestingNodes()
+    {
+        List<Node> nodeList = new List<Node>();
+
+        for (int i = 0; i < AStarManager.instance.AllNodes().Length; i++)
+        {
+            if (AStarManager.instance.AllNodes()[i].hasAttraction)
+            {
+                nodeList.Add(AStarManager.instance.AllNodes()[i]);
+            }
+        }
+
+        nodeList = interestingNodes;
+        return nodeList;
+    }
+
+    public IEnumerator ChangeAfterTime(State newState)
+    {
+        yield return new WaitForSeconds(3);
+        ChangeState(newState);
     }
 }

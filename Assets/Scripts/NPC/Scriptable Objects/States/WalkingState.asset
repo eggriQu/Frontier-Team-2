@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::State
   actions:
   - {fileID: 11400000, guid: fc792ca317416bd47b165e5231848d2f, type: 2}
+  - {fileID: 11400000, guid: f3d260d6085075a429d3c68708283b01, type: 2}
   transitions:
   - decision: {fileID: 11400000, guid: 7db8f3036da541144bba116e2c1b6ba0, type: 2}
     TrueState: {fileID: 11400000, guid: 49cb93f3d50250f408611b374a04f7a2, type: 2}

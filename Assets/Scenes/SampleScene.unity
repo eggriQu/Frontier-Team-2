@@ -2126,6 +2126,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2134149699}
     m_Modifications:
+    - target: {fileID: 7858233168880755669, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
+      propertyPath: hasAttraction
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8672583981177016558, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9
@@ -2622,6 +2626,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2134149699}
     m_Modifications:
+    - target: {fileID: 7858233168880755669, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
+      propertyPath: hasAttraction
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8672583981177016558, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12
@@ -3762,17 +3770,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8672583981177016558, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
   m_PrefabInstance: {fileID: 1025222168}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1242744480 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7858233168880755669, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
-  m_PrefabInstance: {fileID: 1025222168}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6db5b7d8ebeff0b4795740522cd2e17e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Node
 --- !u!4 &1292173074 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8672583981177016558, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
@@ -3853,6 +3850,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2134149699}
     m_Modifications:
+    - target: {fileID: 7858233168880755669, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
+      propertyPath: hasAttraction
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8672583981177016558, guid: e865bfb01154ee54b830f6099afd0f49, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3
@@ -4944,9 +4945,9 @@ MonoBehaviour:
   _lastState: {fileID: 0}
   _startState: {fileID: 11400000, guid: 49cb93f3d50250f408611b374a04f7a2, type: 2}
   currentNode: {fileID: 1237633817}
-  nodeOfInterest: {fileID: 1242744480}
-  path:
-  - {fileID: 1237633817}
+  nodeOfInterest: {fileID: 0}
+  interestingNodes: []
+  path: []
   speed: 3
   panicMultiplier: 1
 --- !u!4 &1726022407 stripped

@@ -7,11 +7,7 @@ public class ActionTest : IAction
     public override void Entry(StateController fsm)
     {
         fsm.anim.SetBool("Idle", false);
-
-        if (fsm.path.Count == 0)
-        {
-            fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, AStarManager.instance.AllNodes()[Random.Range(0, AStarManager.instance.AllNodes().Length)]);
-        }
+        fsm.currentState.Execute(fsm);
     }
 
     public override void Execute(StateController fsm)

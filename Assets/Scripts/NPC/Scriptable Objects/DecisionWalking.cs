@@ -5,7 +5,7 @@ public class DecisionWalking : IDecision
 {
     public override bool Check(StateController fsm)
     {
-        if (fsm.nodeOfInterest != null && fsm.nodeOfInterest.hasAttraction)
+        if (fsm.nodeOfInterest != null || fsm.FindInterestingNodes() != null)
         {
             return true;
         }

@@ -15,7 +15,7 @@ public class State : ScriptableObject
     {
         for (int i = 0; i < transitions.Length; i++)
         {
-            if (transitions[i].decision.Check(fsm))
+            if (transitions[i].decision.Check(fsm) && fsm.currentState != transitions[i].TrueState)
             {
                 fsm.ChangeState(transitions[i].TrueState);
             }

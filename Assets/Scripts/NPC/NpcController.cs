@@ -7,6 +7,11 @@ public class NpcController : StateController
     public float speed = 3f;
     public int panicMultiplier = 1;
 
+    private void Awake()
+    {
+        FindInterestingNodes();
+    }
+
     void Start()
     {
         ChangeState(_startState);
@@ -30,6 +35,10 @@ public class NpcController : StateController
             {
                 currentNode = path[x];
                 path.RemoveAt(x);
+                if (path.Count == 0)
+                {
+                    currentState.Execute(this);
+                }
             }
         }
     }

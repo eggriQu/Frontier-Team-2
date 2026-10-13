@@ -28,6 +28,7 @@ public class ActionDirectWalk : IAction
         if (fsm.nodeOfInterest != null)
         {
             fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, fsm.nodeOfInterest);
+            fsm.interestingNodes.Remove(fsm.nodeOfInterest);
         }
         else
         {
