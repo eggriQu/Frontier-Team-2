@@ -5,15 +5,39 @@ using UnityEngine;
 public class Node : MonoBehaviour
 {
     public Node cameFrom;
+    private NodeGenerator _nodeGenerator;
     public List<Node> connections;
 
     public bool hasAttraction;
+    public bool hasBeenVisited;
     public float gScore;
     public float hScore;
 
     public float FScore()
     {
         return gScore + hScore;
+    }
+
+    public void Awake()
+    {
+        _nodeGenerator = GameObject.Find("NodeParent").GetComponent<NodeGenerator>();
+
+        float randomFloat = Random.Range(0, 20);
+        if (randomFloat == 6 || randomFloat == 7)
+        {
+            hasAttraction = true;
+        }
+    }
+
+    public void DestroyNode()
+    {
+        foreach (Node node in connections)
+        {
+            node.connections.Remove(this);
+        }
+
+        _nodeGenerator.nodeList.Remove(this);
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmos()
@@ -26,6 +50,11 @@ public class Node : MonoBehaviour
             {
                 Gizmos.DrawLine(transform.position, connections[i].transform.position);
             }
+        }
+
+        if (hasAttraction)
+        {
+            Gizmos.DrawCube(transform.position, Vector3.one);
         }
     }
 

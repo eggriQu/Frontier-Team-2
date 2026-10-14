@@ -56,7 +56,7 @@ public class StateController : MonoBehaviour
 
         for (int i = 0; i < nodeArr.Length - 1; i++)
         {
-            if (nodeArr[i].hasAttraction)
+            if (nodeArr[i].hasAttraction && !nodeArr[i].hasBeenVisited)
             {
                 nodeList.Add(nodeArr[i]);
             }

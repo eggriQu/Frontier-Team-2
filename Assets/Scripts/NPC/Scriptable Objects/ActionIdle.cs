@@ -15,7 +15,7 @@ public class ActionIdle : IAction
     public override void Entry(StateController fsm)
     {
         fsm.anim.SetBool("Idle", true);
-        fsm.currentState.Execute(fsm);
+        fsm.StartCoroutine(WaitToExecute(fsm));
     }
 
     public override void Execute(StateController fsm)
@@ -26,5 +26,11 @@ public class ActionIdle : IAction
     public override void Exit(StateController fsm)
     {
         fsm.anim.SetBool("Idle", false);
+    }
+
+    public IEnumerator WaitToExecute(StateController fsm)
+    {
+        yield return new WaitForSeconds(2.5f);
+        fsm.currentState.Execute(fsm);
     }
 }

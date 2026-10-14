@@ -9,7 +9,7 @@ public class NpcController : StateController
 
     private void Awake()
     {
-        FindInterestingNodes();
+        //FindInterestingNodes();
     }
 
     void Start()
@@ -34,12 +34,21 @@ public class NpcController : StateController
             if (Vector3.Distance(transform.position, path[x].transform.position) < 0.1f)
             {
                 currentNode = path[x];
+                currentNode.hasBeenVisited = true;
                 path.RemoveAt(x);
                 if (path.Count == 0)
                 {
                     currentState.Execute(this);
                 }
             }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == 3 && path.Count < 1)
+        {
+            path.Add(other.GetComponent<Node>());
         }
     }
 }

@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 7858233168880755669}
   - component: {fileID: 1905143573190822093}
   - component: {fileID: 1752666408613174915}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Node
-  m_TagString: Untagged
+  m_TagString: Node
   m_Icon: {fileID: 6519382022992737161, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -48,6 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Node
   cameFrom: {fileID: 0}
   connections: []
+  hasAttraction: 0
   gScore: 0
   hScore: 0
 --- !u!135 &1905143573190822093
