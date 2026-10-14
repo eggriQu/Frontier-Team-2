@@ -2,12 +2,11 @@ using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
-    void Start()
-    {
-        
-    }
+    [Header("Menu Buttons")]
 
-    void Update()
+    [SerializeField] private GameObject mainMenu;
+
+    public void OpenOutdoorsScene()
     {
         
     }
