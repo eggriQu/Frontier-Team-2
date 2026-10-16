@@ -13,12 +13,12 @@ public class ActionDirectWalk : IAction
 
     public override void Execute(StateController fsm)
     {
-        fsm.anim.SetBool("Idle", false);
+        
     }
 
     public override void Exit(StateController fsm)
     {
-        fsm.anim.SetBool("Idle", true);
+        
     }
 
     IEnumerator WaitToGeneratePath(StateController fsm)

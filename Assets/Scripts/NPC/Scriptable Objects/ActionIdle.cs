@@ -20,12 +20,12 @@ public class ActionIdle : IAction
 
     public override void Execute(StateController fsm)
     {
-        fsm.anim.SetBool("Idle", true);
+        
     }
 
     public override void Exit(StateController fsm)
     {
-        fsm.anim.SetBool("Idle", false);
+        
     }
 
     public IEnumerator WaitToExecute(StateController fsm)
