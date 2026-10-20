@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,6 +17,7 @@ public class NpcController : StateController
     public virtual void Update()
     {
         CreatePath("ObserveState");
+        availableNodes = AStarManager.instance.AllNodes().ToList<Node>();
     }
 
     public void CreatePath(string ignoreState)

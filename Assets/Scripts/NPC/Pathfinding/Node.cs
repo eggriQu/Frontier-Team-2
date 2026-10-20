@@ -34,6 +34,14 @@ public class Node : MonoBehaviour
         foreach (Node node in connections)
         {
             node.connections.Remove(this);
+
+            for (int i = 0;  i < node.connections.Count; i++)
+            {
+                if (node.connections[i] == null)
+                {
+                    node.connections.RemoveAt(i);
+                }
+            }
         }
 
         _nodeGenerator.nodeList.Remove(this);
@@ -63,6 +71,11 @@ public class Node : MonoBehaviour
         if (other.gameObject.GetComponent<Node>() != null)
         {
             connections.Add(other.gameObject.GetComponent<Node>());
+        }
+
+        if (other.CompareTag("Wall"))
+        {
+            DestroyNode();
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "AI/Action/Direct Walk")]
@@ -8,12 +9,11 @@ public class ActionDirectWalk : IAction
     public override void Entry(StateController fsm)
     {
         fsm.anim.SetBool("Idle", false);
-        fsm.StartCoroutine(WaitToGeneratePath(fsm));
     }
 
     public override void Execute(StateController fsm)
     {
-        
+        fsm.StartCoroutine(WaitToGeneratePath(fsm));
     }
 
     public override void Exit(StateController fsm)
@@ -23,7 +23,7 @@ public class ActionDirectWalk : IAction
 
     IEnumerator WaitToGeneratePath(StateController fsm)
     {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.3f);
 
         if (fsm.nodeOfInterest != null)
         {
@@ -31,7 +31,7 @@ public class ActionDirectWalk : IAction
         }
         else
         {
-            fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, AStarManager.instance.AllNodes()[Random.Range(0, AStarManager.instance.AllNodes().Length)]);
+            fsm.path = AStarManager.instance.GeneratePath(fsm.currentNode, fsm.availableNodes[Random.Range(0, fsm.availableNodes.Count - 1)]);
         }
     }
 }

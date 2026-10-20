@@ -21,6 +21,7 @@ public class StateController : MonoBehaviour
     public Node currentNode;
     public Node nodeOfInterest;
     public List<Node> interestingNodes;
+    public List<Node> availableNodes;
     public List<Node> path = new List<Node>();
 
     public State currentState => _pState;

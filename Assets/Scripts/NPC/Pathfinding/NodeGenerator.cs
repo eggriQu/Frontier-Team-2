@@ -9,6 +9,7 @@ public class NodeGenerator : MonoBehaviour
     [SerializeField] private List<float> gridColumns;
     [SerializeField] private List<float> gridRows;
     [SerializeField] private float gridSize;
+
     [SerializeField] private float nodeOffset;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -24,6 +25,23 @@ public class NodeGenerator : MonoBehaviour
     }
 
     void GenerateCoords()
+    {
+        for (int i = 0; i < gridSize; i++)
+        {
+            if (i == 0)
+            {
+                gridColumns.Add(i);
+                gridRows.Add(i);
+            }
+            else
+            {
+                gridColumns.Add(i * nodeOffset);
+                gridRows.Add(i * nodeOffset);
+            }
+        }
+    }
+
+    void GenerateEnclosure()
     {
         for (int i = 0; i < gridSize; i++)
         {
