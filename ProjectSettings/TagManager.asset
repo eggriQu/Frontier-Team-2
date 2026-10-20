@@ -50,6 +50,7 @@ TagManager:
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
+<<<<<<< HEAD
   - Decal Layer default
   - Decal Layer 1
   - Decal Layer 2
@@ -58,3 +59,5 @@ TagManager:
   - Decal Layer 5
   - Decal Layer 6
   - Decal Layer 7
+=======
+>>>>>>> parent of f615498 (Merge branch 'main' into modular-building-testing)
