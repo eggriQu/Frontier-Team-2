@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Contains data which all placeables share.
+/// </summary>
 public abstract class BasePlaceable : ScriptableObject
 {
     [SerializeField] private string placeableName;

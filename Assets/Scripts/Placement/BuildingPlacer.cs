@@ -3,11 +3,14 @@ using UnityEngine.InputSystem;
 
 namespace Placement
 {
+    /// <summary>
+    /// Contains logic for the placement system.
+    /// Handles the player positioning, rotating, and placing objects on the ground.
+    /// </summary>
     public class BuildingPlacer : MonoBehaviour
     {
         [SerializeField] private GameManager gameManager;
-        // test var
-        [SerializeField] private BasePlaceable[] placeables;      //  Array of placeable objects
+        //[SerializeField] private BasePlaceable[] placeables;      //  Unused - Array of placeable objects
         [SerializeField] private BasePlaceable testPlaceable;     //  single placeable object for testing purposes
 
         [SerializeField] private LayerMask obstacleLayer;         //  this layer is used to check overlapping objects when placing
@@ -23,42 +26,34 @@ namespace Placement
         private void Start()
         {
             _pointerAction = InputSystem.actions.FindAction("Pointer");
-            //SelectNextPrefab();
             SpawnPreview();
         }
 
         private void Update()
         {
             _pointerAction.Enable();
-            //OnClick(clickAction.ReadValue<bool>());
             OnPointer(_pointerAction.ReadValue<Vector2>());
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 OnMouseDown();
             }
 
-            if (Keyboard.current != null & Keyboard.current.rKey.wasPressedThisFrame)
+            if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
             {
                 OnRotatePressed();
             }
         }
 
-        //private void SelectNextPrefab() // should handle logic for selecting and instantiating a placeable object
-        //{
-        //    _currentObject = Instantiate(testPlaceable.Prefab); // replace with selecting next object in list.
-        //    _boxCollider = _currentObject.GetComponent<BoxCollider>();
-        //}
-
         private void SpawnPreview()
         {
             if (testPlaceable == null || testPlaceable.Prefab == null) return;
 
-            //  instantiate the prefab from the BasePlaceable scriptable object
+            //  create the preview from the prefab configured on the selected placeable.
             _currentPreviewObject = Instantiate(testPlaceable.Prefab);
             _boxCollider = _currentPreviewObject.GetComponent<BoxCollider>();
             _previewPlaceableComponent = _currentPreviewObject.GetComponent<PlaceableObject>();
 
-            // apply current rotation to the preview
+            // retain the current rotation when a new preview object is instantiated.
             _currentPreviewObject.transform.rotation = _currentRotation;
 
             if (_previewPlaceableComponent != null)
@@ -76,15 +71,15 @@ namespace Placement
         public void OnPointer(Vector2 mousePos)
         {
             if (_currentPreviewObject == null) return;
+            if (Camera.main == null) return;
 
             Ray ray = Camera.main.ScreenPointToRay(mousePos);
+            
             if (Physics.Raycast(ray, out var hit, Mathf.Infinity, groundLayer))
             {
-                //  round transform to nearest int for grid coords
+                //  snap the preview to the nearest integer grid position
                 Vector3 rayHit = new(Mathf.Round(hit.point.x), Mathf.Round(hit.point.y), Mathf.Round(hit.point.z));
-
-                //_currentObject.transform.position = rayHit;
-                //_currentObject.transform.rotation = Quaternion.Euler(0f, _currentRotation.y, 0f);
+                
                 _currentPreviewObject.transform.position = rayHit;
 
                 Vector3Int currentGridPos = new Vector3Int(
@@ -100,9 +95,12 @@ namespace Placement
             }
         }
 
+        /// <summary>
+        /// places selected building if preview position is valid and player can afford it.
+        /// </summary>
         private void OnMouseDown()  // handles logic for finalising placement (not blocked, enough money, etc.)
         {
-            // check for collision here
+            // reject placement if preview overlaps an existing object or obstacle.
             if (IsBuildingBlocked())
             {
                 Debug.Log("Placement overlapping with another object!");
@@ -115,6 +113,7 @@ namespace Placement
                 return;
             }
 
+            // set the placed piece's position to be the preview's position
             Vector3 placementPos = _currentPreviewObject.transform.position;
 
             PlaceableObject placeableComponent = testPlaceable.Prefab.GetComponent<PlaceableObject>();
@@ -124,7 +123,7 @@ namespace Placement
                 return;
             }
 
-            // destroy preview ghost
+            // destroy preview ghost before placing the new piece
             Destroy(_currentPreviewObject);
 
             // register the placement with the GridSystem
@@ -145,23 +144,15 @@ namespace Placement
             }
         }
 
-        // moved to GridSystem.cs
-        // private void SetLayerRecursively(GameObject currentObject, int layer)   // sets gameObject's and all it's children's layers
-        // {
-        //     currentObject.layer = layer;
-        //     foreach (Transform child in currentObject.transform)
-        //         SetLayerRecursively(child.gameObject, layer);
-        // }
-
         private bool IsBuildingBlocked()
         {
             if (_boxCollider == null || _currentPreviewObject == null) return false;
 
-            // get world space center and half extents
+            // convert collider's local center into world space
             Vector3 worldCenter = _currentPreviewObject.transform.TransformPoint(_boxCollider.center);
 
-            // scale half extents using lossy scale so its slightly smaller
-            // so it doesn't prevent adjacent placement
+            // scale half extents using lossy scale so its slightly smaller,
+            // meaning it doesn't prevent adjacent placement
             Vector3 lossyScale = _currentPreviewObject.transform.lossyScale;
             Vector3 halfExtents = Vector3.Scale(_boxCollider.size * 0.5f, lossyScale) * 0.95f;
 
@@ -176,10 +167,6 @@ namespace Placement
 
         private void OnRotatePressed()
         {
-            //_currentRotation.y += 90f;
-            //if (_currentRotation.y >= 360f)
-            //    _currentRotation.y = 0f;
-
             _currentRotation *= Quaternion.Euler(0f, 90f, 0f);
 
             if (_currentPreviewObject != null)
