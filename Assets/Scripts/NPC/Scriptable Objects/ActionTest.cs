@@ -10,6 +10,7 @@ public class ActionTest : IAction
         fsm.anim.SetBool("Observing", true);
         fsm.anim.SetBool("Idle", true);
         fsm.nodeOfInterest = null;
+        fsm.pathOverride = true;
         fsm.StartCoroutine(WaitToExecute(fsm));
     }
 
@@ -21,6 +22,7 @@ public class ActionTest : IAction
     public override void Exit(StateController fsm)
     {
         fsm.anim.SetBool("Observing", false);
+        fsm.pathOverride = false;
     }
 
     public IEnumerator WaitToExecute(StateController fsm)

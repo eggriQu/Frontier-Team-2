@@ -102,6 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Node
   cameFrom: {fileID: 0}
   connections: []
+  surroundingWalls: []
   hasAttraction: 0
   hasBeenVisited: 0
   gScore: 0
@@ -116,7 +117,7 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0

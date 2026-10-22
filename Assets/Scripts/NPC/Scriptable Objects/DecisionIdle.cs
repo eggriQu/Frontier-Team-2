@@ -5,7 +5,7 @@ public class DecisionIdle : IDecision
 {
     public override bool Check(StateController fsm)
     {
-        if (fsm.FindInterestingNodes() == null)
+        if (fsm.nodeOfInterest == null && fsm.interestingNodes.Count <= 0)
         {
             return true;
         }

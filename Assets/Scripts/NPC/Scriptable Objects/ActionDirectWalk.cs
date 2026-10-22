@@ -9,11 +9,12 @@ public class ActionDirectWalk : IAction
     public override void Entry(StateController fsm)
     {
         fsm.anim.SetBool("Idle", false);
+        fsm.StartCoroutine(WaitToGeneratePath(fsm));
     }
 
     public override void Execute(StateController fsm)
     {
-        fsm.StartCoroutine(WaitToGeneratePath(fsm));
+
     }
 
     public override void Exit(StateController fsm)

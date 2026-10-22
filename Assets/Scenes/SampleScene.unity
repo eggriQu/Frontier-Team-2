@@ -962,6 +962,10 @@ PrefabInstance:
       propertyPath: _startState
       value: 
       objectReference: {fileID: 11400000, guid: 52356c2473588e040a4d270d833f8585, type: 2}
+    - target: {fileID: 5088068661040401094, guid: 7bf7cbf09a00b3b49a1d52f60fc21c78, type: 3}
+      propertyPath: m_Constraints
+      value: 80
+      objectReference: {fileID: 0}
     - target: {fileID: 6718988376466512196, guid: 7bf7cbf09a00b3b49a1d52f60fc21c78, type: 3}
       propertyPath: m_Name
       value: MonsterNPC

@@ -41,23 +41,6 @@ public class NodeGenerator : MonoBehaviour
         }
     }
 
-    void GenerateEnclosure()
-    {
-        for (int i = 0; i < gridSize; i++)
-        {
-            if (i == 0)
-            {
-                gridColumns.Add(i);
-                gridRows.Add(i);
-            }
-            else
-            {
-                gridColumns.Add(i * nodeOffset);
-                gridRows.Add(i * nodeOffset);
-            }
-        }
-    }
-
     void GenerateNodes()
     {
         GenerateCoords();

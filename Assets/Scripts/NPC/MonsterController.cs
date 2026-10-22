@@ -19,7 +19,7 @@ public class MonsterController : NpcController
     // Update is called once per frame
     public override void Update()
     {
-        CreatePath("");
+        CreatePath();
     }
         
     public IEnumerator GenerateEnclosureNodes()
@@ -52,7 +52,7 @@ public class MonsterController : NpcController
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == 3 && path.Count < 1)
+        if (other.gameObject.layer == 3 && path.Count < 1 && !pathOverride)
         {
             currentNode = other.GetComponent<Node>();
             path.Add(currentNode);

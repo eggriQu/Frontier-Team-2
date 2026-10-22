@@ -15,12 +15,19 @@ public class ActionIdle : IAction
     public override void Entry(StateController fsm)
     {
         fsm.anim.SetBool("Idle", true);
-        fsm.StartCoroutine(WaitToExecute(fsm));
+        if (fsm.gameObject.GetComponent<MonsterController>() != null)
+        {
+            fsm.StartCoroutine(WaitToExecute(fsm));
+        }
+        else
+        {
+            fsm.FindInterestingNodes();
+        }
     }
 
     public override void Execute(StateController fsm)
     {
-        
+
     }
 
     public override void Exit(StateController fsm)

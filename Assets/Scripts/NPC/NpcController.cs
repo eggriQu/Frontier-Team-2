@@ -16,13 +16,13 @@ public class NpcController : StateController
     // Update is called once per frame
     public virtual void Update()
     {
-        CreatePath("ObserveState");
+        CreatePath();
         availableNodes = AStarManager.instance.AllNodes().ToList<Node>();
     }
 
-    public void CreatePath(string ignoreState)
+    public void CreatePath()
     {
-        if (path.Count > 0 && currentState.name != ignoreState)
+        if (path.Count > 0 && !pathOverride)
         {
             int x = 0;
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(path[x].transform.position.x, path[x].transform.position.y, path[x].transform.position.z),
@@ -44,7 +44,7 @@ public class NpcController : StateController
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == 3 && path.Count < 1)
+        if (other.gameObject.layer == 3 && path.Count < 1 && !pathOverride)
         {
             path.Add(other.GetComponent<Node>());
         }

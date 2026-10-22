@@ -14,6 +14,7 @@ using static UnityEditor.PlayerSettings;
 public class StateController : MonoBehaviour
 {
     public Animator anim;
+    public SphereCollider interactCollider;
     [SerializeField] protected State _pState;
     [SerializeField] protected State _lastState;
     [SerializeField] protected State _startState;
@@ -23,6 +24,8 @@ public class StateController : MonoBehaviour
     public List<Node> interestingNodes;
     public List<Node> availableNodes;
     public List<Node> path = new List<Node>();
+
+    public bool pathOverride;
 
     public State currentState => _pState;
     public State previousState => _lastState;  
@@ -65,6 +68,17 @@ public class StateController : MonoBehaviour
 
         interestingNodes = nodeList;
         return nodeList;
+    }
+
+    public void FindNodesWithWalls()
+    {
+        foreach (Node node in availableNodes)
+        {
+            if (node.surroundingWalls.Count > 0)
+            {
+                interestingNodes.Add(node);
+            }
+        }
     }
 
     public IEnumerator ChangeAfterTime(State newState)

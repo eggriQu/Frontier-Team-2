@@ -7,6 +7,7 @@ public class Node : MonoBehaviour
     public Node cameFrom;
     private NodeGenerator _nodeGenerator;
     public List<Node> connections;
+    public List<Wall> surroundingWalls;
 
     public bool hasAttraction;
     public bool hasBeenVisited;
@@ -22,7 +23,7 @@ public class Node : MonoBehaviour
     {
         _nodeGenerator = GameObject.Find("NodeParent").GetComponent<NodeGenerator>();
 
-        float randomFloat = Random.Range(0, 20);
+        float randomFloat = Random.Range(0, 40);
         if (randomFloat == 6 || randomFloat == 7)
         {
             hasAttraction = true;
@@ -76,6 +77,11 @@ public class Node : MonoBehaviour
         if (other.CompareTag("Wall"))
         {
             DestroyNode();
+        }
+
+        if (other.gameObject.layer == 6)
+        {
+            surroundingWalls.Add(other.gameObject.GetComponentInParent<Wall>());
         }
     }
 }
