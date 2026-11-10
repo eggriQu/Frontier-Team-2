@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Placement;
 
 public class AssetItem : MonoBehaviour
 {
@@ -14,7 +15,9 @@ public class AssetItem : MonoBehaviour
     public Image previewImage;
 
     [Header("Placement")]
-    public PlacementController placementController;
+    //public PlacementController placementController;
+    [SerializeField] private BuildingPlacer placementController;
+    
 
     private void Awake()
     {
@@ -48,7 +51,8 @@ public class AssetItem : MonoBehaviour
             return;
         }
 
-        placementController.SelectObject(buildPrefab);
+        //placementController.SelectObject(buildPrefab);
+        placementController.SetPlaceable(buildPrefab);
     }
 
     private void OnDestroy()

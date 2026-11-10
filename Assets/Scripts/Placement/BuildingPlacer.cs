@@ -11,7 +11,7 @@ namespace Placement
     {
         [SerializeField] private GameManager gameManager;
         //[SerializeField] private BasePlaceable[] placeables;      //  Unused - Array of placeable objects
-        [SerializeField] private BasePlaceable testPlaceable;     //  single placeable object for testing purposes
+        [SerializeField] private BasePlaceable placeable;           //  single placeable object
 
         [SerializeField] private LayerMask obstacleLayer;         //  this layer is used to check overlapping objects when placing
         [SerializeField] private LayerMask groundLayer;           //  this layer is used to ray cast to the ground when placing objects
@@ -44,12 +44,22 @@ namespace Placement
             }
         }
 
+        public void SetPlaceable(GameObject gameObject)
+        {
+            if (!gameObject.GetComponent<BasePlaceable>())
+            {
+                return;
+            }
+
+            placeable = gameObject.GetComponent<BasePlaceable>();
+        }
+
         private void SpawnPreview()
         {
-            if (testPlaceable == null || testPlaceable.Prefab == null) return;
+            if (placeable == null || placeable.Prefab == null) return;
 
             //  create the preview from the prefab configured on the selected placeable.
-            _currentPreviewObject = Instantiate(testPlaceable.Prefab);
+            _currentPreviewObject = Instantiate(placeable.Prefab);
             _boxCollider = _currentPreviewObject.GetComponent<BoxCollider>();
             _previewPlaceableComponent = _currentPreviewObject.GetComponent<PlaceableObject>();
 
@@ -70,8 +80,17 @@ namespace Placement
 
         public void OnPointer(Vector2 mousePos)
         {
-            if (_currentPreviewObject == null) return;
-            if (Camera.main == null) return;
+            if (_currentPreviewObject == null)
+            {
+                Debug.LogWarning("Preview ghost object null");
+                return;
+            }
+
+            if (Camera.main == null)
+            {
+                Debug.LogWarning("Camera null.");
+                return;
+            }
 
             Ray ray = Camera.main.ScreenPointToRay(mousePos);
             
@@ -107,7 +126,7 @@ namespace Placement
                 return;
             }
 
-            if (gameManager != null && gameManager.Money < testPlaceable.Cost)
+            if (gameManager != null && gameManager.Money < placeable.Cost)
             {
                 Debug.Log("Not enough money!");
                 return;
@@ -116,7 +135,7 @@ namespace Placement
             // set the placed piece's position to be the preview's position
             Vector3 placementPos = _currentPreviewObject.transform.position;
 
-            PlaceableObject placeableComponent = testPlaceable.Prefab.GetComponent<PlaceableObject>();
+            PlaceableObject placeableComponent = placeable.Prefab.GetComponent<PlaceableObject>();
             if (placeableComponent == null)
             {
                 Debug.LogError("Prefab assinged in BasePlaceable is missing the PlaceableObject component.");
@@ -132,7 +151,7 @@ namespace Placement
             if (success)
             {
                 if (gameManager != null)
-                    gameManager.Money -= testPlaceable.Cost;
+                    gameManager.Money -= placeable.Cost;
 
                 SpawnPreview(); // spawn next preview ghost
             }

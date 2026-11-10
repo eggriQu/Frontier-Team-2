@@ -9,9 +9,11 @@ public abstract class BasePlaceable : ScriptableObject
     [SerializeField] private int id;
     [SerializeField] private GameObject prefab;
     [SerializeField] private int cost;
+    [SerializeField] private Texture2D icon;
 
     public string PlaceableName { get => placeableName; set => placeableName = value; }
     public int Id { get => id; set => id = value; }
     public GameObject Prefab { get => prefab; set => prefab = value; }
     public int Cost { get => cost; set => cost = value; }
+    public Texture2D Icon {  get => icon; set => icon = value;}
 }

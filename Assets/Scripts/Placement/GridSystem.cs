@@ -54,6 +54,7 @@ namespace Placement
 
             // check self and neighbours for connections
             NotifySelfAndNeighbours(gridPos);
+            PrintGridDict();
             return true;
         }
 
@@ -130,6 +131,15 @@ namespace Placement
             currentObject.layer = layer;
             foreach (Transform child in currentObject.transform)
                 SetLayerRecursively(child.gameObject, layer);
+        }
+
+        private void PrintGridDict()
+        {
+            for (int i = 0; i < _grid.Count; i++)
+            {
+                // print each object by position
+            }
+            Debug.Log("End");
         }
     }
 }
