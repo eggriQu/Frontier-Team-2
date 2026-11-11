@@ -16,6 +16,18 @@ namespace Placement
         // maps each occupied grid cell to the object placed there
         private Dictionary<Vector3Int, PlaceableObject> _grid = new Dictionary<Vector3Int, PlaceableObject>();
 
+        private PlaceableObject _previewPlaceableObject;
+        private Vector3Int _previewGridPosition;
+        private bool _hasPreview;
+
+        private static readonly Vector3Int[] CardinalDirections =
+        {
+            Vector3Int.forward, //  North   (+z)    bit 1
+            Vector3Int.right, //    East    (+x)    bit 2
+            Vector3Int.back, //     South   (-z)    bit 4
+            Vector3Int.left //      West    (-x)    bit 8
+        };
+
         private void Awake() => Instance = this;    // set up singleton
         
         /// <summary>
@@ -54,7 +66,6 @@ namespace Placement
 
             // check self and neighbours for connections
             NotifySelfAndNeighbours(gridPos);
-            PrintGridDict();
             return true;
         }
 
@@ -82,8 +93,17 @@ namespace Placement
         /// <returns></returns>
         public PlaceableObject GetPieceAt(Vector3Int gridPos)
         {
-            _grid.TryGetValue(gridPos, out PlaceableObject placeableObj);
-            return placeableObj;
+            if (_grid.TryGetValue(gridPos, out PlaceableObject placeableObj))
+            {
+                return placeableObj;
+            }
+
+            if (_hasPreview && _previewGridPosition == gridPos)
+            {
+                return _previewPlaceableObject;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -93,7 +113,9 @@ namespace Placement
         private void NotifySelfAndNeighbours(Vector3Int gridPos)
         {
             if (_grid.TryGetValue(gridPos, out PlaceableObject placeableObj))
-                placeableObj.UpdateConnections();
+            {
+                RefreshPieceConnections(gridPos, placeableObj);
+            }
 
             NotifyNeighboursOnly(gridPos);
         }
@@ -104,21 +126,27 @@ namespace Placement
         /// <param name="gridPos"></param>
         private void NotifyNeighboursOnly(Vector3Int gridPos)
         {
-            Vector3Int[] directions = // using cardinal directions here in case we end up having camera rotation
+            for (int i = 0; i < CardinalDirections.Length; i++)
             {
-            Vector3Int.forward, // North
-            Vector3Int.right, // East
-            Vector3Int.back, // South
-            Vector3Int.left // West
-        };
-
-            foreach (var dir in directions)
-            {
-                if (_grid.TryGetValue(gridPos + dir, out PlaceableObject neighbour))
+                Vector3Int neighbourPos = gridPos + CardinalDirections[i];
+                if (_grid.TryGetValue(neighbourPos, out PlaceableObject neighbour))
                 {
-                    neighbour.UpdateConnections();
+                    RefreshPieceConnections(neighbourPos, neighbour);
+                }
+                else if (_hasPreview && _previewGridPosition == neighbourPos && _previewPlaceableObject != null)
+                {
+                    RefreshPieceConnections(neighbourPos, _previewPlaceableObject);
                 }
             }
+        }
+
+        /// <summary>
+        /// public method to notify neighbours only
+        /// </summary>
+        /// <param name="gridPos"></param>
+        public void NotifyNeighbours(Vector3Int gridPos)
+        {
+            NotifyNeighboursOnly(gridPos);
         }
 
         /// <summary>
@@ -132,12 +160,46 @@ namespace Placement
             foreach (Transform child in currentObject.transform)
                 SetLayerRecursively(child.gameObject, layer);
         }
+        
+        public void SetPreviewAt(Vector3Int gridPos, PlaceableObject preview)
+        {
+            _previewPlaceableObject = preview;
+            _previewGridPosition = gridPos;
+            _hasPreview = preview != null;
+        }
 
+        public void ClearPreview()
+        {
+            _previewPlaceableObject = null;
+            _hasPreview = false;
+        }
+
+        public void RefreshPieceConnections(Vector3Int gridPos, PlaceableObject target)
+        {
+            if (target == null) return;
+
+            int bitmask = 0;
+            for (int i = 0; i < CardinalDirections.Length; i++)
+            {
+                PlaceableObject neighbour = GetPieceAt(gridPos + CardinalDirections[i]);
+                if (neighbour != null && neighbour.placeableCategory == target.placeableCategory)
+                {
+                    bitmask |= 1 << i;
+                }
+            }
+            target.UpdateConnections(bitmask);
+        }
+        
+        public bool IsCellOccupied(Vector3Int gridPos) => _grid.ContainsKey(gridPos);
+
+        /// <summary>
+        /// Debug method to print every value in the _grid dictionary
+        /// </summary>
         private void PrintGridDict()
         {
-            for (int i = 0; i < _grid.Count; i++)
+            foreach (var obj in _grid)
             {
-                // print each object by position
+                Debug.Log($"Obj key = {obj.Key}\n");
             }
             Debug.Log("End");
         }

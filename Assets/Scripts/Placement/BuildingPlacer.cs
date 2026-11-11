@@ -1,195 +1,236 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Placement
 {
     /// <summary>
-    /// Contains logic for the placement system.
-    /// Handles the player positioning, rotating, and placing objects on the ground.
+    /// Handles player input, preview placeable positioning, placement validation,
+    /// and delegating piece placement to GridSystem
     /// </summary>
     public class BuildingPlacer : MonoBehaviour
     {
+        [Header("Dependencies")] [SerializeField]
+        private GridSystem gridSystem;
+
         [SerializeField] private GameManager gameManager;
-        //[SerializeField] private BasePlaceable[] placeables;      //  Unused - Array of placeable objects
-        [SerializeField] private BasePlaceable placeable;           //  single placeable object
+        [SerializeField] private BasePlaceable placeable;
 
-        [SerializeField] private LayerMask obstacleLayer;         //  this layer is used to check overlapping objects when placing
-        [SerializeField] private LayerMask groundLayer;           //  this layer is used to ray cast to the ground when placing objects
+        [Header("Collision Layers")] [SerializeField]
+        private LayerMask obstacleLayer; //  this layer is used to check overlapping objects when placing
 
+        [SerializeField]
+        private LayerMask groundLayer; //  this layer is used to ray cast to the ground when placing objects
+
+        private Camera _mainCamera;
         private InputAction _pointerAction;
-        private GameObject _currentPreviewObject;       // current object being placed
-        private PlaceableObject _previewPlaceableComponent;
 
-        private Quaternion _currentRotation = Quaternion.identity;     // its current rotation, stored so it doesn't reset when placing a new object
-        private BoxCollider _boxCollider;       // box collider of the root game object when placing
+
+        private GameObject _currentPreviewObject; // current object being placed
+        private PlaceableObject _previewPlaceableComponent;
+        private BoxCollider _previewCollider; // box collider of the root game object when placing
+        private Vector3Int? _lastPreviewGridPos;
+
+        private Quaternion
+            _currentRotation =
+                Quaternion.identity; // its current rotation, stored so it doesn't reset when placing a new object
+
+        private void Awake()
+        {
+            _mainCamera = Camera.main;
+            if (gridSystem == null)
+            {
+                gridSystem = GridSystem.Instance;
+            }
+
+            _pointerAction = InputSystem.actions.FindAction("Pointer");
+        }
 
         private void Start()
         {
-            _pointerAction = InputSystem.actions.FindAction("Pointer");
             SpawnPreview();
+        }
+
+        private void OnEnable()
+        {
+            _pointerAction?.Enable();
+        }
+
+        private void OnDisable()
+        {
+            _pointerAction?.Disable();
         }
 
         private void Update()
         {
-            _pointerAction.Enable();
-            OnPointer(_pointerAction.ReadValue<Vector2>());
+            if (_pointerAction != null)
+            {
+                UpdatePreviewPosition(_pointerAction.ReadValue<Vector2>());
+            }
+
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                OnMouseDown();
+                TryPlaceCurrentPiece();
             }
 
             if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
             {
-                OnRotatePressed();
+                RotatePreview();
             }
         }
 
-        public void SetPlaceable(GameObject gameObject)
+        public void SetPlaceable(GameObject placeableGameObject)
         {
-            if (!gameObject.GetComponent<BasePlaceable>())
+            if (placeableGameObject == null || !placeableGameObject.TryGetComponent(out BasePlaceable newPlaceable))
             {
                 return;
             }
 
-            placeable = gameObject.GetComponent<BasePlaceable>();
+            placeable = newPlaceable;
+            DestroyPreview();
+            SpawnPreview();
         }
 
         private void SpawnPreview()
         {
-            if (placeable == null || placeable.Prefab == null) return;
+            if (placeable == null || placeable.Prefab == null)
+            {
+                return;
+            }
 
             //  create the preview from the prefab configured on the selected placeable.
-            _currentPreviewObject = Instantiate(placeable.Prefab);
-            _boxCollider = _currentPreviewObject.GetComponent<BoxCollider>();
+            _currentPreviewObject = Instantiate(placeable.Prefab, Vector3.zero, _currentRotation);
+            _previewCollider = _currentPreviewObject.GetComponent<BoxCollider>();
             _previewPlaceableComponent = _currentPreviewObject.GetComponent<PlaceableObject>();
+            _lastPreviewGridPos = null;
+        }
 
-            // retain the current rotation when a new preview object is instantiated.
-            _currentPreviewObject.transform.rotation = _currentRotation;
+        private void DestroyPreview()
+        {
+            gridSystem.ClearPreview();
+            if (_currentPreviewObject != null)
+            {
+                Destroy(_currentPreviewObject);
+                _currentPreviewObject = null;
+                _previewPlaceableComponent = null;
+                _previewCollider = null;
+            }
+
+            _lastPreviewGridPos = null;
+        }
+
+        private void UpdatePreviewPosition(Vector2 mousePos)
+        {
+            if (_currentPreviewObject == null || _mainCamera == null)
+            {
+                return;
+            }
+
+            Ray ray = _mainCamera.ScreenPointToRay(mousePos);
+            if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, groundLayer))
+            {
+                return;
+            }
+
+            Vector3Int currentGridPos = GridSystem.WorldToGridPos(hit.point);
+            if (_lastPreviewGridPos == currentGridPos)
+            {
+                return;
+            }
+
+            Vector3Int? previousGridPos = _lastPreviewGridPos;
+            _lastPreviewGridPos = currentGridPos;
+            _currentPreviewObject.transform.position = currentGridPos;
 
             if (_previewPlaceableComponent != null)
             {
-                _previewPlaceableComponent.GridPosition = new Vector3Int(
-                    Mathf.RoundToInt(_currentPreviewObject.transform.position.x),
-                    Mathf.RoundToInt(_currentPreviewObject.transform.position.y),
-                    Mathf.RoundToInt(_currentPreviewObject.transform.position.z)
-                );
+                _previewPlaceableComponent.GridPosition = currentGridPos;
+                gridSystem.SetPreviewAt(currentGridPos, _previewPlaceableComponent);
 
-                _previewPlaceableComponent.UpdateConnections();
+                if (previousGridPos.HasValue)
+                {
+                    gridSystem.NotifyNeighbours(previousGridPos.Value);
+                }
+
+                gridSystem.NotifyNeighbours(currentGridPos);
+                gridSystem.RefreshPieceConnections(currentGridPos, _previewPlaceableComponent);
             }
         }
 
-        public void OnPointer(Vector2 mousePos)
+        private void TryPlaceCurrentPiece()
         {
-            if (_currentPreviewObject == null)
+            if (_currentPreviewObject == null || placeable == null || !_lastPreviewGridPos.HasValue)
             {
-                Debug.LogWarning("Preview ghost object null");
                 return;
             }
 
-            if (Camera.main == null)
+            if (!placeable.Prefab.TryGetComponent(out PlaceableObject prefabPlaceable))
             {
-                Debug.LogWarning("Camera null.");
+                Debug.LogError($"Prefab assigned in BasePlaceable is missing a PlaceableObject component");
                 return;
             }
 
-            Ray ray = Camera.main.ScreenPointToRay(mousePos);
-            
-            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, groundLayer))
+            Vector3Int targetGridPos = _lastPreviewGridPos.Value;
+            if (!CanPlaceAt(targetGridPos))
             {
-                //  snap the preview to the nearest integer grid position
-                Vector3 rayHit = new(Mathf.Round(hit.point.x), Mathf.Round(hit.point.y), Mathf.Round(hit.point.z));
-                
-                _currentPreviewObject.transform.position = rayHit;
+                return;
+            }
 
-                Vector3Int currentGridPos = new Vector3Int(
-                    Mathf.RoundToInt(rayHit.x),
-                    Mathf.RoundToInt(rayHit.y),
-                    Mathf.RoundToInt(rayHit.z));
+            gridSystem.ClearPreview();
 
-                if (_previewPlaceableComponent != null)
+            if (gridSystem.PlacePiece(targetGridPos, prefabPlaceable, _currentRotation))
+            {
+                if (gameManager != null)
                 {
-                    _previewPlaceableComponent.GridPosition = currentGridPos;
-                    _previewPlaceableComponent.UpdateConnections();
+                    gameManager.Money -= placeable.Cost;
                 }
             }
+
+            _lastPreviewGridPos = null;
         }
 
-        /// <summary>
-        /// places selected building if preview position is valid and player can afford it.
-        /// </summary>
-        private void OnMouseDown()  // handles logic for finalising placement (not blocked, enough money, etc.)
+        private bool CanPlaceAt(Vector3Int gridPos)
         {
-            // reject placement if preview overlaps an existing object or obstacle.
-            if (IsBuildingBlocked())
+            if (gridSystem.IsCellOccupied(gridPos))
             {
-                Debug.Log("Placement overlapping with another object!");
-                return;
+                return false;
+            }
+
+            if (IsBlockedByObstacle())
+            {
+                return false;
             }
 
             if (gameManager != null && gameManager.Money < placeable.Cost)
             {
-                Debug.Log("Not enough money!");
-                return;
+                return false;
             }
 
-            // set the placed piece's position to be the preview's position
-            Vector3 placementPos = _currentPreviewObject.transform.position;
-
-            PlaceableObject placeableComponent = placeable.Prefab.GetComponent<PlaceableObject>();
-            if (placeableComponent == null)
-            {
-                Debug.LogError("Prefab assinged in BasePlaceable is missing the PlaceableObject component.");
-                return;
-            }
-
-            // destroy preview ghost before placing the new piece
-            Destroy(_currentPreviewObject);
-
-            // register the placement with the GridSystem
-            bool success = GridSystem.Instance.PlacePiece(placementPos, placeableComponent, _currentRotation);
-
-            if (success)
-            {
-                if (gameManager != null)
-                    gameManager.Money -= placeable.Cost;
-
-                SpawnPreview(); // spawn next preview ghost
-            }
-
-            else
-            {
-                Debug.Log("Position already occupied.");
-                SpawnPreview();
-            }
+            return true;
         }
 
-        private bool IsBuildingBlocked()
+        private bool IsBlockedByObstacle()
         {
-            if (_boxCollider == null || _currentPreviewObject == null) return false;
+            if (_previewCollider == null || _currentPreviewObject == null)
+            {
+                return false;
+            }
 
-            // convert collider's local center into world space
-            Vector3 worldCenter = _currentPreviewObject.transform.TransformPoint(_boxCollider.center);
+            Vector3 worldCenter = _currentPreviewObject.transform.TransformPoint(_previewCollider.center);
+            Vector3 halfExtents =
+                Vector3.Scale(_previewCollider.size * 0.5f, _currentPreviewObject.transform.lossyScale) * 0.95f;
 
-            // scale half extents using lossy scale so its slightly smaller,
-            // meaning it doesn't prevent adjacent placement
-            Vector3 lossyScale = _currentPreviewObject.transform.lossyScale;
-            Vector3 halfExtents = Vector3.Scale(_boxCollider.size * 0.5f, lossyScale) * 0.95f;
-
-            return Physics.CheckBox(
-                worldCenter,
-                halfExtents,
-                _currentRotation,
-                obstacleLayer,
-                QueryTriggerInteraction.Ignore
-            );
+            return Physics.CheckBox(worldCenter, halfExtents, _currentRotation, obstacleLayer,
+                QueryTriggerInteraction.Ignore);
         }
 
-        private void OnRotatePressed()
+        private void RotatePreview()
         {
             _currentRotation *= Quaternion.Euler(0f, 90f, 0f);
-
             if (_currentPreviewObject != null)
+            {
                 _currentPreviewObject.transform.rotation = _currentRotation;
+            }
         }
     }
 }

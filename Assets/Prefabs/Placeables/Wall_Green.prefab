@@ -2746,7 +2746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4c56e8e8cfe6e14cb5e911013f8f2c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
-  placeableCategory: Wall
+  placeableCategory: 1
   bitmaskMeshVariants:
   - {fileID: 6727203785888549897}
   - {fileID: 262446753051508679}
