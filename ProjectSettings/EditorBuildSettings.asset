@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/PauseMenu.unity
     guid: 7d8438cb91ce8924286e3b30a0d7c271
+  - enabled: 1
+    path: Assets/MainMenu.unity
+    guid: afc5b685a03b69844b8d7eea8f4536cd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

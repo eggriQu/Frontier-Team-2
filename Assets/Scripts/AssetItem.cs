@@ -4,16 +4,16 @@ using TMPro;
 
 public class AssetItem : MonoBehaviour
 {
-    [Header("Build Asset")]
+    [Header("Asset Reference")]
     public string assetName;
     public GameObject buildPrefab;
 
-    [Header("UI References")]
+    [Header("UI Reference")]
     public Button button;
     public TMP_Text itemLabel;
     public Image previewImage;
 
-    [Header("Placement")]
+    [Header("Placement Controller")]
     public PlacementController placementController;
 
     private void Awake()
@@ -34,17 +34,11 @@ public class AssetItem : MonoBehaviour
     {
         if (placementController == null)
         {
-            Debug.LogWarning(
-                "Placement Controller is not assigned on " + assetName
-            );
             return;
         }
 
         if (buildPrefab == null)
         {
-            Debug.LogWarning(
-                "Build Prefab is not assigned on " + assetName
-            );
             return;
         }
 

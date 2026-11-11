@@ -4,6 +4,7 @@ public class UIController : MonoBehaviour
 {
     [SerializeField] private GameObject buildCatalogue;
 
+    // Open the build tab
     public void OpenBuildCatalogue()
     {
         if (buildCatalogue != null)
@@ -16,6 +17,7 @@ public class UIController : MonoBehaviour
         }
     }
 
+    //Close the build tab
     public void CloseBuildCatalogue()
     {
         if (buildCatalogue != null)

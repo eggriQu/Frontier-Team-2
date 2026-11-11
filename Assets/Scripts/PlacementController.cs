@@ -17,12 +17,6 @@ public class PlacementController : MonoBehaviour
     //Object selection
     public void SelectObject(GameObject prefab)
     {
-        if (prefab == null)
-        {
-            Debug.LogWarning("No build prefab was assigned.");
-            return;
-        }
-
         selectedPrefab = prefab;
         Debug.Log("Selected object: " + prefab.name);
     }
@@ -35,17 +29,16 @@ public class PlacementController : MonoBehaviour
 
         if (IsPointerOverButton())
         {
-            Debug.Log("Click ignored because the pointer is over a Button.");
+            Debug.Log("Input ignored because the pointer is over a Button.");
             return;
         }
 
         if (buildCamera == null || groundLayer.value == 0)
         {
-            Debug.LogError("PlacementController: Check the Build Camera and Ground Layer assignments.");
             return;
         }
 
-        //Check if the ray hits the ground layer
+        //Checks if the ray hits the ground layer
         Ray ray = buildCamera.ScreenPointToRay(Input.mousePosition);
 
         if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance))
@@ -54,7 +47,7 @@ public class PlacementController : MonoBehaviour
             return;
         }
 
-        //Allows placement on the ground layer and on placed objects
+        //Allows objects to be placed on the ground layer and on placed objects
         bool isGround = IsInLayerMask(hit.collider.gameObject, groundLayer);
         bool isPlacedBlock = hit.collider.GetComponentInParent<PlacedBlockMarker>() != null;
 
@@ -75,19 +68,19 @@ public class PlacementController : MonoBehaviour
             placedObject.transform.position += Vector3.up * bottomOffset;
         }
 
-        //Marked the placed object with a PlacedBlockMarker component to identify it as a valid placement surface.
+        //Mark the placed object with a PlacedBlockMarker component to identify it as a valid surface
         placedObject.AddComponent<PlacedBlockMarker>();
 
         Debug.Log("Placed " + selectedPrefab.name + " at " + hit.point);
     }
 
-    //Checks if the object is in the specified LayerMask
+    //Checks if the object is being placed on the specified GroundLayer LayerMask
     private bool IsInLayerMask(GameObject obj, LayerMask layerMask)
     {
         return (layerMask.value & (1 << obj.layer)) != 0;
     }
 
-    //Check if the pointer is over the UI Buttons
+    //Checks if the pointer is over the UI Buttons
     private bool IsPointerOverButton()
     {
         if (EventSystem.current == null)

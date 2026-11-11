@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float fastMoveSpeed = 25f;
 
-    //Move camera around
+    //Move the camera around
     [Header("Mouse Look")]
     [SerializeField] private float mouseSensitivity = 2f;
     [SerializeField] private float minPitch = -80f;
@@ -61,7 +61,7 @@ public class CameraController : MonoBehaviour
         transform.position += movement * speed * Time.deltaTime;
     }
 
-    //Rotate camera around
+    //Rotate the camera around
     private void HandleMouseLook()
     {
         if (Input.GetMouseButtonDown(1))
@@ -87,7 +87,7 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    //Disable cursor
+    //Hide the cursor when you are moving the camera around
     private void OnDisable()
     {
         Cursor.lockState = CursorLockMode.None;

@@ -15,6 +15,14 @@ public class PauseMenu : MonoBehaviour
         SceneManager.UnloadSceneAsync("PauseMenu");
     }
 
+    //Return back to the Main Menu
+    public void ExitToMainMenu()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+    }
+
     //Exit the game
     public void QuitGame()
     {
