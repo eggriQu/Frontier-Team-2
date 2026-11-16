@@ -3,8 +3,18 @@ using UnityEngine;
 public class UIController : MonoBehaviour
 {
     [SerializeField] private GameObject buildCatalogue;
+    [SerializeField] private GameObject placementControls;
+    [SerializeField] private PlacementController placementController;
 
-    // Open the build tab
+    private void Start()
+    {
+        if (placementControls != null)
+        {
+            placementControls.SetActive(false);
+        }
+    }
+
+    //Open the build tab
     public void OpenBuildCatalogue()
     {
         if (buildCatalogue != null)
@@ -23,6 +33,29 @@ public class UIController : MonoBehaviour
         if (buildCatalogue != null)
         {
             buildCatalogue.SetActive(false);
+        }
+    }
+
+    //Confirm the object placement
+    public void ConfirmPlacement()
+    {
+        if (placementController != null)
+        {
+            placementController.ConfirmPlacement();
+        }
+    }
+
+    //Cancel the object placement
+    public void CancelPlacement()
+    {
+        if (placementController != null)
+        {
+            placementController.CancelPlacement();
+        }
+
+        if (placementControls != null)
+        {
+            placementControls.SetActive(false);
         }
     }
 }

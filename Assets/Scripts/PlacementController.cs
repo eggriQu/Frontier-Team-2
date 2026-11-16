@@ -12,38 +12,80 @@ public class PlacementController : MonoBehaviour
     [Header("Placement")]
     [SerializeField] private float rayDistance = 1000f;
 
+    [Header("Preview")]
+    [SerializeField] private Material previewMaterial;
+
     private GameObject selectedPrefab;
+    private GameObject previewObject;
+    private bool isPlacementValid;
 
     //Object selection
     public void SelectObject(GameObject prefab)
     {
+        if (prefab == null)
+            return;
+
+        CancelPlacement();
+
         selectedPrefab = prefab;
+
+        previewObject = Instantiate(selectedPrefab);
+        previewObject.name = selectedPrefab.name + " Preview";
+
+        Collider[] colliders = previewObject.GetComponentsInChildren<Collider>();
+
+        foreach (Collider col in colliders)
+        {
+            col.enabled = false;
+        }
+
+        if (previewMaterial != null)
+        {
+            Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+
+            foreach (Renderer renderer in renderers)
+            {
+                Material[] materials = new Material[renderer.sharedMaterials.Length];
+
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    materials[i] = previewMaterial;
+                }
+
+                renderer.sharedMaterials = materials;
+            }
+        }
+
         Debug.Log("Selected object: " + prefab.name);
     }
 
     //Object placement
     private void Update()
     {
-        if (selectedPrefab == null || !Input.GetMouseButtonDown(0))
+        if (previewObject == null)
+            return;
+
+        UpdatePreviewPosition();
+
+    }
+
+    private void UpdatePreviewPosition()
+    {
+        if (buildCamera == null || groundLayer.value == 0)
             return;
 
         if (IsPointerOverButton())
         {
-            Debug.Log("Input ignored because the pointer is over a Button.");
+            isPlacementValid = false;
             return;
         }
 
-        if (buildCamera == null || groundLayer.value == 0)
-        {
-            return;
-        }
-
-        //Checks if the ray hits the ground layer
+        // Checks if the ray hits a valid surface
         Ray ray = buildCamera.ScreenPointToRay(Input.mousePosition);
 
         if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance))
         {
-            Debug.LogWarning("Placement ray did not hit a surface.");
+            isPlacementValid = false;
             return;
         }
 
@@ -52,26 +94,56 @@ public class PlacementController : MonoBehaviour
         bool isPlacedBlock = hit.collider.GetComponentInParent<PlacedBlockMarker>() != null;
 
         if (!isGround && !isPlacedBlock)
+        {
+            isPlacementValid = false;
             return;
+        }
 
-        GameObject placedObject = Instantiate(
-            selectedPrefab,
-            hit.point,
-            selectedPrefab.transform.rotation
-        );
+        previewObject.transform.position = hit.point;
+        previewObject.transform.rotation = selectedPrefab.transform.rotation;
 
-        Collider objectCollider = placedObject.GetComponentInChildren<Collider>();
+        Collider objectCollider = selectedPrefab.GetComponentInChildren<Collider>();
 
         if (objectCollider != null)
         {
             float bottomOffset = hit.point.y - objectCollider.bounds.min.y;
-            placedObject.transform.position += Vector3.up * bottomOffset;
+            previewObject.transform.position += Vector3.up * bottomOffset;
         }
+
+        isPlacementValid = true;
+    }
+
+    //Confirm object placement
+    public void ConfirmPlacement()
+    {
+        if (previewObject == null || !isPlacementValid)
+            return;
+
+        GameObject placedObject = Instantiate(
+            selectedPrefab,
+            previewObject.transform.position,
+            previewObject.transform.rotation
+        );
 
         //Mark the placed object with a PlacedBlockMarker component to identify it as a valid surface
         placedObject.AddComponent<PlacedBlockMarker>();
 
-        Debug.Log("Placed " + selectedPrefab.name + " at " + hit.point);
+        Debug.Log("Placed " + selectedPrefab.name + " at " + placedObject.transform.position);
+
+        CancelPlacement();
+    }
+
+    //Cancel object placement
+    public void CancelPlacement()
+    {
+        if (previewObject != null)
+        {
+            Destroy(previewObject);
+        }
+
+        previewObject = null;
+        selectedPrefab = null;
+        isPlacementValid = false;
     }
 
     //Checks if the object is being placed on the specified GroundLayer LayerMask
