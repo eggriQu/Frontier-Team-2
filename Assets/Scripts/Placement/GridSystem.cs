@@ -16,6 +16,8 @@ namespace Placement
         // maps each occupied grid cell to the object placed there
         private Dictionary<Vector3Int, PlaceableObject> _grid = new Dictionary<Vector3Int, PlaceableObject>();
 
+        private SpatialGrid _spatialGrid;
+
         private PlaceableObject _previewPlaceableObject;
         private Vector3Int _previewGridPosition;
         private bool _hasPreview;
@@ -29,7 +31,7 @@ namespace Placement
         };
 
         private void Awake() => Instance = this;    // set up singleton
-        
+        /*  Moved to spatial grid
         /// <summary>
         /// converts world space position to nearest grid cell.
         /// </summary>
@@ -42,8 +44,8 @@ namespace Placement
                 Mathf.RoundToInt(worldPos.y),
                 Mathf.RoundToInt(worldPos.z)
                 );
-        }
-
+        }*/
+        /*  Old version. Grid-specific logic moved to SpatialGrid.cs
         /// <summary>
         /// creates a placeable at the grid cell rounded from given world position.
         /// returns false if cell already occupied.
@@ -67,8 +69,34 @@ namespace Placement
             // check self and neighbours for connections
             NotifySelfAndNeighbours(gridPos);
             return true;
-        }
+        }*/
 
+        /// <summary>
+        /// Creates placeable at the grid cell, rounded from given world position.
+        /// Returns false if cell already occupied.
+        /// </summary>
+        /// <param name="worldPos"></param>
+        /// <param name="placeablePrefab"></param>
+        /// <param name="rotation"></param>
+        /// <returns></returns>
+        public bool PlacePiece(Vector3 worldPos, PlaceableObject placeablePrefab, Quaternion rotation)
+        {
+            Vector3Int gridPos;
+
+            if (_spatialGrid.IsPlacementValid(worldPos, placeablePrefab.gameObject, rotation, out gridPos))
+            {
+                PlaceableObject newPlaceable = Instantiate(placeablePrefab, gridPos, rotation);
+                newPlaceable.GridPosition = gridPos;    // set its internal grid pos
+                _spatialGrid.AddObject(gridPos, placeablePrefab.gameObject);
+                SetLayerRecursively(newPlaceable.gameObject, 6);    //  set layer for everything on a gameObject
+
+                NotifySelfAndNeighbours(gridPos);
+                return true;
+            }
+
+            return false;
+        }
+        /*  old code. grid logic moved to SpatialGrid.cs
         /// <summary>
         /// removes piece at specified grid cell, if one is present.
         /// then refreshes neighbours' connections.
@@ -80,6 +108,19 @@ namespace Placement
 
             _grid.Remove(gridPos);
             Destroy(placeableObj.gameObject);
+
+            // make neighbours check connections
+            NotifyNeighboursOnly(gridPos);
+        }*/
+
+        public void RemovePiece(Vector3 worldPos)
+        {
+            Vector3Int gridPos;
+            GameObject obj;
+            if (_spatialGrid.IsRemovalValid(worldPos, out gridPos, out obj))
+
+            _spatialGrid.RemoveObject(gridPos);
+            Destroy(obj);
 
             // make neighbours check connections
             NotifyNeighboursOnly(gridPos);
