@@ -7,13 +7,13 @@ using UnityEditor;
 
 public class MainMenu : MonoBehaviour
 {
-    //Opens the Game scene when Play is pressed
+    //Opens the game when you press Play
     public void Play()
     {
         SceneManager.LoadScene("Game");
     }
 
-    //Exits the game when Quit is pressed
+    //Exits the game when you press Quit
     public void Quit()
     {
         Application.Quit();

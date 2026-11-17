@@ -61,7 +61,7 @@ public class CameraController : MonoBehaviour
         transform.position += movement * speed * Time.deltaTime;
     }
 
-    //Rotate the camera around
+    //Rotates the camera around
     private void HandleMouseLook()
     {
         if (Input.GetMouseButtonDown(1))

@@ -13,142 +13,115 @@ public class PlacementController : MonoBehaviour
     [SerializeField] private float rayDistance = 1000f;
 
     [Header("Preview")]
-    [SerializeField] private Material previewMaterial;
+    [SerializeField] private Material
+    previewMaterial;
+    [SerializeField] private Material
+    validMaterial;
+    [SerializeField] private Material
+    invalidMaterial;
 
     private GameObject selectedPrefab;
     private GameObject previewObject;
+    private GameObject footprintIndicator;
+    private Renderer footprintRenderer;
     private bool isPlacementValid;
-    public bool IsPlacing =>
-    previewObject != null;
 
     //Object selection
     public void SelectObject(GameObject prefab)
     {
         if (prefab == null)
+        {
             return;
 
-        CancelPlacement();
+            CancelPlacement();
 
-        selectedPrefab = prefab;
+            selectedPrefab = prefab;
 
-        previewObject = Instantiate(selectedPrefab);
-        previewObject.name = selectedPrefab.name + " Preview";
+            previewObject = Instantiate(selectedPrefab);
 
-        Collider[] colliders = previewObject.GetComponentsInChildren<Collider>();
+            previewObject.name = selectedPrefab.name + "Preview";
 
-        foreach (Collider col in colliders)
-        {
-            col.enabled = false;
-        }
+            Collider[] colliders = previewObject.GetComponentsInChildren<Collider>();
 
-        if (previewMaterial != null)
-        {
-            Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
-
-            foreach (Renderer renderer in renderers)
+            foreach (Collider col in colliders)
             {
-                Material[] materials = new Material[renderer.sharedMaterials.Length];
+                col.enabled = false;
+            }
 
-                for (int i = 0; i < materials.Length; i++)
+            if (previewMaterial != null)
+            {
+                Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+
+                foreach (Renderer renderer in renderers)
                 {
-                    materials[i] = previewMaterial;
-                }
+                    Material[] materials = new Material[renderer.materials.Length];
 
-                renderer.sharedMaterials = materials;
+                    for (int i = 0; i < renderer.materials.Length; i++)
+                    {
+
+                    }
+                }
             }
         }
 
+        selectedPrefab = prefab;
         Debug.Log("Selected object: " + prefab.name);
     }
 
     //Object placement
     private void Update()
     {
-        if (previewObject == null)
-            return;
-
-        UpdatePreviewPosition();
-
-    }
-
-    private void UpdatePreviewPosition()
-    {
-        if (buildCamera == null || groundLayer.value == 0)
+        if (selectedPrefab == null || !Input.GetMouseButtonDown(0))
             return;
 
         if (IsPointerOverButton())
         {
-            isPlacementValid = false;
+            Debug.Log("Click ignored because the pointer is over a Button.");
             return;
         }
 
-        // Checks if the ray hits a valid surface
+        if (buildCamera == null || groundLayer.value == 0)
+        {
+            return;
+        }
+
+        //Checks if the ray hits the ground layer
         Ray ray = buildCamera.ScreenPointToRay(Input.mousePosition);
 
         if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance))
         {
-            isPlacementValid = false;
+            Debug.LogWarning("Placement ray did not hit a surface.");
             return;
         }
 
-        //Allows objects to be placed on the ground layer and on placed objects
+        //Allows objects to be placed on the ground layer and on other objects
         bool isGround = IsInLayerMask(hit.collider.gameObject, groundLayer);
         bool isPlacedBlock = hit.collider.GetComponentInParent<PlacedBlockMarker>() != null;
 
         if (!isGround && !isPlacedBlock)
-        {
-            isPlacementValid = false;
-            return;
-        }
-
-        previewObject.transform.position = hit.point;
-        previewObject.transform.rotation = selectedPrefab.transform.rotation;
-
-        Collider objectCollider = selectedPrefab.GetComponentInChildren<Collider>();
-
-        if (objectCollider != null)
-        {
-            float bottomOffset = hit.point.y - objectCollider.bounds.min.y;
-            previewObject.transform.position += Vector3.up * bottomOffset;
-        }
-
-        isPlacementValid = true;
-    }
-
-    //Confirm object placement
-    public void ConfirmPlacement()
-    {
-        if (previewObject == null || !isPlacementValid)
             return;
 
         GameObject placedObject = Instantiate(
             selectedPrefab,
-            previewObject.transform.position,
-            previewObject.transform.rotation
+            hit.point,
+            selectedPrefab.transform.rotation
         );
 
-        //Mark the placed object with a PlacedBlockMarker component to identify it as a valid surface
-        placedObject.AddComponent<PlacedBlockMarker>();
+        Collider objectCollider = placedObject.GetComponentInChildren<Collider>();
 
-        Debug.Log("Placed " + selectedPrefab.name + " at " + placedObject.transform.position);
-
-        CancelPlacement();
-    }
-
-    //Cancel object placement
-    public void CancelPlacement()
-    {
-        if (previewObject != null)
+        if (objectCollider != null)
         {
-            Destroy(previewObject);
+            float bottomOffset = hit.point.y - objectCollider.bounds.min.y;
+            placedObject.transform.position += Vector3.up * bottomOffset;
         }
 
-        previewObject = null;
-        selectedPrefab = null;
-        isPlacementValid = false;
+        //Marks the placed object with a PlacedBlockMarker component to verify it as a valid surface.
+        placedObject.AddComponent<PlacedBlockMarker>();
+
+        Debug.Log("Placed " + selectedPrefab.name + " at " + hit.point);
     }
 
-    //Checks if the object is being placed on the specified GroundLayer LayerMask
+    //Checks if the object is in the specified LayerMask
     private bool IsInLayerMask(GameObject obj, LayerMask layerMask)
     {
         return (layerMask.value & (1 << obj.layer)) != 0;
