@@ -18,6 +18,8 @@ public class PlacementController : MonoBehaviour
     private GameObject selectedPrefab;
     private GameObject previewObject;
     private bool isPlacementValid;
+    public bool IsPlacing =>
+    previewObject != null;
 
     //Object selection
     public void SelectObject(GameObject prefab)

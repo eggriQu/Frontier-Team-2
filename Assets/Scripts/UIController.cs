@@ -14,6 +14,14 @@ public class UIController : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (placementControls != null && placementController != null)
+        {
+            placementControls.SetActive(placementController.IsPlacing);
+        }
+    }
+
     //Open the build tab
     public void OpenBuildCatalogue()
     {
