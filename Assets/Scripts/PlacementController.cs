@@ -13,7 +13,8 @@ public class PlacementController : MonoBehaviour
     [SerializeField] private float rayDistance = 1000f;
 
     [Header("Preview")]
-    [SerializeField] private Material previewMaterial;
+    [SerializeField] private Material validMaterial;
+    [SerializeField] private Material invalidMaterial;
 
     private GameObject selectedPrefab;
     private GameObject previewObject;
@@ -39,22 +40,8 @@ public class PlacementController : MonoBehaviour
             col.enabled = false;
         }
 
-        if (previewMaterial != null)
-        {
-            Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
-
-            foreach (Renderer renderer in renderers)
-            {
-                Material[] materials = new Material[renderer.sharedMaterials.Length];
-
-                for (int i = 0; i < materials.Length; i++)
-                {
-                    materials[i] = previewMaterial;
-                }
-
-                renderer.sharedMaterials = materials;
-            }
-        }
+        isPlacementValid = false;
+        UpdatePreviewMaterial();
 
         Debug.Log("Selected object: " + prefab.name);
     }
@@ -65,56 +52,127 @@ public class PlacementController : MonoBehaviour
         if (previewObject == null)
             return;
 
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Debug.Log(selectedPrefab.name + " placement cancelled.");
+            CancelPlacement();
+            return;
+        }
+
         UpdatePreviewPosition();
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (IsPointerOverButton())
+            {
+                Debug.Log("Input ignored because the pointer is over a Button.");
+                return;
+            }
+
+            if (isPlacementValid)
+            {
+                PlaceObject();
+            }
+            else
+            {
+                Debug.LogWarning("Cannot place " + selectedPrefab.name + " here.");
+            }
+        }
     }
 
     private void UpdatePreviewPosition()
     {
         if (buildCamera == null || groundLayer.value == 0)
-            return;
-
-        if (IsPointerOverButton())
         {
             isPlacementValid = false;
+            UpdatePreviewMaterial();
             return;
         }
 
-        // Checks if the ray hits a valid surface
+        if (IsPointerOverButton())
+            return;
+
+        //Checks if the raycast hits the ground layer and checks if the placement is valid
         Ray ray = buildCamera.ScreenPointToRay(Input.mousePosition);
 
         if (!Physics.Raycast(ray, out RaycastHit hit, rayDistance))
         {
             isPlacementValid = false;
+            UpdatePreviewMaterial();
             return;
         }
 
-        //Allows objects to be placed on the ground layer and on placed objects
+        //Allows objects to be placed on the ground layer and on other placed objects
         bool isGround = IsInLayerMask(hit.collider.gameObject, groundLayer);
         bool isPlacedBlock = hit.collider.GetComponentInParent<PlacedBlockMarker>() != null;
-
-        if (!isGround && !isPlacedBlock)
-        {
-            isPlacementValid = false;
-            return;
-        }
 
         previewObject.transform.position = hit.point;
         previewObject.transform.rotation = selectedPrefab.transform.rotation;
 
-        Collider objectCollider = selectedPrefab.GetComponentInChildren<Collider>();
+        Bounds bounds;
 
-        if (objectCollider != null)
+        if (TryGetPreviewBounds(out bounds))
         {
-            float bottomOffset = hit.point.y - objectCollider.bounds.min.y;
+            float bottomOffset = hit.point.y - bounds.min.y;
             previewObject.transform.position += Vector3.up * bottomOffset;
         }
 
-        isPlacementValid = true;
+        isPlacementValid = isGround || isPlacedBlock;
+
+        UpdatePreviewMaterial();
     }
 
-    //Confirm object placement
-    public void ConfirmPlacement()
+    //Updates the preview object's material whether the placement is valid or not
+    private void UpdatePreviewMaterial()
+    {
+        if (previewObject == null)
+            return;
+
+        Material material = isPlacementValid ? validMaterial : invalidMaterial;
+
+        if (material == null)
+            return;
+
+        Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in renderers)
+        {
+            Material[] materials = renderer.sharedMaterials;
+
+            for (int i = 0; i < materials.Length; i++)
+            {
+                materials[i] = material;
+            }
+
+            renderer.sharedMaterials = materials;
+        }
+    }
+
+    //Calculates the bounds of the preview object
+    private bool TryGetPreviewBounds(out Bounds bounds)
+    {
+        bounds = new Bounds();
+
+        if (previewObject == null)
+            return false;
+
+        Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+
+        if (renderers.Length == 0)
+            return false;
+
+        bounds = renderers[0].bounds;
+
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        return true;
+    }
+
+    //Object placement
+    private void PlaceObject()
     {
         if (previewObject == null || !isPlacementValid)
             return;
@@ -125,25 +183,10 @@ public class PlacementController : MonoBehaviour
             previewObject.transform.rotation
         );
 
-        //Mark the placed object with a PlacedBlockMarker component to identify it as a valid surface
+        //Marks the placed object with a PlacedBlockMarker component to identify it as a valid surface
         placedObject.AddComponent<PlacedBlockMarker>();
 
         Debug.Log("Placed " + selectedPrefab.name + " at " + placedObject.transform.position);
-
-        CancelPlacement();
-    }
-
-    //Cancel object placement
-    public void CancelPlacement()
-    {
-        if (previewObject != null)
-        {
-            Destroy(previewObject);
-        }
-
-        previewObject = null;
-        selectedPrefab = null;
-        isPlacementValid = false;
     }
 
     //Checks if the object is being placed on the specified GroundLayer LayerMask
@@ -173,6 +216,17 @@ public class PlacementController : MonoBehaviour
         }
 
         return false;
+    }
+
+    //Cancel the placement of the object
+    public void CancelPlacement()
+    {
+        if (previewObject != null)
+            Destroy(previewObject);
+
+        previewObject = null;
+        selectedPrefab = null;
+        isPlacementValid = false;
     }
 }
 
