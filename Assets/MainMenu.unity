@@ -563,6 +563,7 @@ GameObject:
   - component: {fileID: 588174295}
   - component: {fileID: 588174294}
   - component: {fileID: 588174293}
+  - component: {fileID: 588174296}
   m_Layer: 5
   m_Name: Dive In
   m_TagString: Untagged
@@ -684,6 +685,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 588174291}
   m_CullTransparentMesh: 1
+--- !u!114 &588174296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588174291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
+  scaleMultiplier: 1.08
+  darkenMultiplier: 0.65
 --- !u!1 &897717417
 GameObject:
   m_ObjectHideFlags: 0
@@ -696,6 +711,7 @@ GameObject:
   - component: {fileID: 897717421}
   - component: {fileID: 897717420}
   - component: {fileID: 897717419}
+  - component: {fileID: 897717422}
   m_Layer: 5
   m_Name: Credits
   m_TagString: Untagged
@@ -805,6 +821,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 897717417}
   m_CullTransparentMesh: 1
+--- !u!114 &897717422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 897717417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
+  scaleMultiplier: 1.08
+  darkenMultiplier: 0.65
 --- !u!1 &1132767413
 GameObject:
   m_ObjectHideFlags: 0
@@ -1070,6 +1100,7 @@ GameObject:
   - component: {fileID: 1432406688}
   - component: {fileID: 1432406691}
   - component: {fileID: 1432406690}
+  - component: {fileID: 1432406692}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -1176,6 +1207,23 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1432406692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432406686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d164e63c5f2ccb49ad052c717c92ff0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KeyboardShortcuts
+  buttons:
+  - {fileID: 588174293}
+  - {fileID: 1725636045}
+  - {fileID: 897717419}
+  - {fileID: 1523340660}
 --- !u!1 &1523340658
 GameObject:
   m_ObjectHideFlags: 0
@@ -1188,6 +1236,7 @@ GameObject:
   - component: {fileID: 1523340662}
   - component: {fileID: 1523340661}
   - component: {fileID: 1523340660}
+  - component: {fileID: 1523340663}
   m_Layer: 5
   m_Name: Quit Game
   m_TagString: Untagged
@@ -1309,6 +1358,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1523340658}
   m_CullTransparentMesh: 1
+--- !u!114 &1523340663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1523340658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
+  scaleMultiplier: 1.08
+  darkenMultiplier: 0.65
 --- !u!1 &1590788355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1698,6 +1761,7 @@ GameObject:
   - component: {fileID: 1725636047}
   - component: {fileID: 1725636046}
   - component: {fileID: 1725636045}
+  - component: {fileID: 1725636048}
   m_Layer: 5
   m_Name: Settings
   m_TagString: Untagged
@@ -1807,6 +1871,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1725636043}
   m_CullTransparentMesh: 1
+--- !u!114 &1725636048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1725636043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
+  scaleMultiplier: 1.08
+  darkenMultiplier: 0.65
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
