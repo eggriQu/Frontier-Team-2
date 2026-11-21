@@ -697,8 +697,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
-  scaleMultiplier: 1.08
-  darkenMultiplier: 0.65
+  scaleMultiplier: 1.05
+  darkenMultiplier: 0.9
 --- !u!1 &897717417
 GameObject:
   m_ObjectHideFlags: 0
@@ -833,8 +833,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
-  scaleMultiplier: 1.08
-  darkenMultiplier: 0.65
+  scaleMultiplier: 1.05
+  darkenMultiplier: 0.9
 --- !u!1 &1132767413
 GameObject:
   m_ObjectHideFlags: 0
@@ -1370,8 +1370,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
-  scaleMultiplier: 1.08
-  darkenMultiplier: 0.65
+  scaleMultiplier: 1.05
+  darkenMultiplier: 0.9
 --- !u!1 &1590788355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1883,8 +1883,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47c23c8fcf71f9940b30cb4d267768f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuButtonHighlight
-  scaleMultiplier: 1.08
-  darkenMultiplier: 0.65
+  scaleMultiplier: 1.05
+  darkenMultiplier: 0.9
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
