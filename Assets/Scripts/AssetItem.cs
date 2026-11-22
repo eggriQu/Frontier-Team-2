@@ -16,6 +16,7 @@ public class AssetItem : MonoBehaviour
     [Header("Placement Controller")]
     public PlacementController placementController;
 
+    //Assigns the name to the asset and acts as a button to select it
     private void Awake()
     {
         if (itemLabel != null)
@@ -29,7 +30,7 @@ public class AssetItem : MonoBehaviour
         }
     }
 
-    //Asset selection
+    //Select the asset that you want to place in the game
     private void SelectAsset()
     {
         if (placementController == null)
