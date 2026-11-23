@@ -9,7 +9,7 @@ public class GridRenderer : MonoBehaviour
     [SerializeField] private float lineWidth = 0.025f;
     [SerializeField] private float heightOffset = 0.02f;
 
-    private Dictionary<BuildSurface, List<LineRenderer>> surfaceGrids =
+    private readonly Dictionary<BuildSurface, List<LineRenderer>> surfaceGrids =
         new Dictionary<BuildSurface, List<LineRenderer>>();
 
     private Material gridMaterial;
@@ -17,20 +17,14 @@ public class GridRenderer : MonoBehaviour
 
     private void Awake()
     {
-        CreateGridMaterial();
-    }
-
-    //Creates the grid material
-    private void CreateGridMaterial()
-    {
-        Shader gridShader = Shader.Find("Universal Render Pipeline/Unlit")
+        Shader shader = Shader.Find("Universal Render Pipeline/Unlit")
             ?? Shader.Find("Unlit/Color");
 
-        if (gridShader == null)
-            return;
-
-        gridMaterial = new Material(gridShader);
-        gridMaterial.color = Color.black;
+        if (shader != null)
+        {
+            gridMaterial = new Material(shader);
+            gridMaterial.color = Color.black;
+        }
     }
 
     //Creates the grid over a selected surface
@@ -40,47 +34,30 @@ public class GridRenderer : MonoBehaviour
             surfaceGrids.ContainsKey(surface))
             return;
 
-        List<LineRenderer> gridLines = new List<LineRenderer>();
+        List<LineRenderer> lines = new List<LineRenderer>();
 
         int cellsX = Mathf.FloorToInt(surface.GridWidth / cellSize);
         int cellsZ = Mathf.FloorToInt(surface.GridDepth / cellSize);
 
         //Creates the grid lines vertically
         for (int i = 0; i <= cellsX; i++)
-        {
-            float x = i * cellSize;
-
-            CreateGridLine(gridLines,
-                GetGridWorldPosition(surface, x, 0f),
-                GetGridWorldPosition(surface, x, cellsZ * cellSize));
-        }
+            CreateGridLine(lines, surface, i * cellSize, 0f,
+                i * cellSize, cellsZ * cellSize, true);
 
         //Creates the grid lines horizontally
         for (int i = 0; i <= cellsZ; i++)
-        {
-            float z = i * cellSize;
+            CreateGridLine(lines, surface, 0f, i * cellSize,
+                cellsX * cellSize, i * cellSize, true);
 
-            CreateGridLine(gridLines,
-                GetGridWorldPosition(surface, 0f, z),
-                GetGridWorldPosition(surface, cellsX * cellSize, z));
-        }
-
-        surfaceGrids.Add(surface, gridLines);
-    }
-
-    //Gets the world position of a grid line
-    private Vector3 GetGridWorldPosition(BuildSurface surface, float x, float z)
-    {
-        return surface.GetWorldPosition(x, z) +
-               surface.transform.up * heightOffset;
+        surfaceGrids.Add(surface, lines);
     }
 
     //Creates an individual grid line
-    private void CreateGridLine(
-        List<LineRenderer> gridLines,
-        Vector3 startPosition,
-        Vector3 endPosition)
+    private void CreateGridLine(List<LineRenderer> lines, BuildSurface surface,
+        float startX, float startZ, float endX, float endZ, bool unused)
     {
+        Vector3 offset = surface.transform.up * heightOffset;
+
         GameObject lineObject = new GameObject("Grid Line");
         lineObject.transform.SetParent(transform);
 
@@ -88,18 +65,21 @@ public class GridRenderer : MonoBehaviour
 
         line.useWorldSpace = true;
         line.positionCount = 2;
-        line.SetPositions(new[] { startPosition, endPosition });
+        line.SetPositions(new[]
+        {
+            surface.GetWorldPosition(startX, startZ) + offset,
+            surface.GetWorldPosition(endX, endZ) + offset
+        });
 
         line.startWidth = line.endWidth = lineWidth;
         line.sharedMaterial = gridMaterial;
         line.startColor = line.endColor = Color.black;
-
         line.alignment = LineAlignment.View;
         line.shadowCastingMode = ShadowCastingMode.Off;
         line.receiveShadows = false;
         line.enabled = keepGridVisible;
 
-        gridLines.Add(line);
+        lines.Add(line);
     }
 
     //Displays the grid on a surface
@@ -110,21 +90,12 @@ public class GridRenderer : MonoBehaviour
 
         CreateGrid(surface);
 
-        if (!surfaceGrids.TryGetValue(surface, out List<LineRenderer> gridLines))
+        if (!surfaceGrids.TryGetValue(surface, out List<LineRenderer> lines))
             return;
 
-        foreach (LineRenderer line in gridLines)
-        {
+        foreach (LineRenderer line in lines)
             if (line != null)
                 line.enabled = true;
-        }
-    }
-
-    //Hides the grid
-    public void HideGrid()
-    {
-        if (!keepGridVisible)
-            SetAllGridsEnabled(false);
     }
 
     //Keeps the grids visible during object placement
@@ -135,75 +106,56 @@ public class GridRenderer : MonoBehaviour
         if (visible)
         {
             foreach (BuildSurface surface in FindObjectsByType<BuildSurface>())
-            {
                 CreateGrid(surface);
-            }
         }
 
-        SetAllGridsEnabled(visible);
+        foreach (List<LineRenderer> lines in surfaceGrids.Values)
+            foreach (LineRenderer line in lines)
+                if (line != null)
+                    line.enabled = visible;
     }
 
-    //Enables or disables all surface grids
-    private void SetAllGridsEnabled(bool enabled)
+    //Hides the grid
+    public void HideGrid()
     {
-        foreach (List<LineRenderer> gridLines in surfaceGrids.Values)
-        {
-            foreach (LineRenderer line in gridLines)
-            {
-                if (line != null)
-                    line.enabled = enabled;
-            }
-        }
+        if (!keepGridVisible)
+            SetGridVisibility(false);
     }
 
     //Places an object to the centre of the grid cells
-    public Vector3 SnapPosition(
-        Vector3 position,
-        BuildSurface surface,
-        Vector2 footprintSize)
+    public Vector3 SnapPosition(Vector3 position, BuildSurface surface, Vector2 footprintSize)
     {
         if (surface == null || cellSize <= 0f)
             return position;
 
-        Vector3 localPosition = surface.GetLocalPosition(position);
+        Vector3 local = surface.GetLocalPosition(position);
 
         int cellsX = Mathf.FloorToInt(surface.GridWidth / cellSize);
         int cellsZ = Mathf.FloorToInt(surface.GridDepth / cellSize);
+        int objectX = Mathf.Max(1, Mathf.CeilToInt(footprintSize.x / cellSize));
+        int objectZ = Mathf.Max(1, Mathf.CeilToInt(footprintSize.y / cellSize));
 
-        int objectCellsX = Mathf.Max(1, Mathf.CeilToInt(footprintSize.x / cellSize));
-        int objectCellsZ = Mathf.Max(1, Mathf.CeilToInt(footprintSize.y / cellSize));
-
-        if (objectCellsX > cellsX || objectCellsZ > cellsZ)
+        if (objectX > cellsX || objectZ > cellsZ)
             return position;
 
-        int cellX = Mathf.FloorToInt(
-            (localPosition.x - surface.LocalGridOrigin.x) / cellSize);
+        int x = Mathf.Clamp(Mathf.FloorToInt(
+            (local.x - surface.LocalGridOrigin.x) / cellSize), 0, cellsX - objectX);
 
-        int cellZ = Mathf.FloorToInt(
-            (localPosition.z - surface.LocalGridOrigin.z) / cellSize);
+        int z = Mathf.Clamp(Mathf.FloorToInt(
+            (local.z - surface.LocalGridOrigin.z) / cellSize), 0, cellsZ - objectZ);
 
-        cellX = Mathf.Clamp(cellX, 0, cellsX - objectCellsX);
-        cellZ = Mathf.Clamp(cellZ, 0, cellsZ - objectCellsZ);
+        local.x = surface.LocalGridOrigin.x + (x + objectX * 0.5f) * cellSize;
+        local.z = surface.LocalGridOrigin.z + (z + objectZ * 0.5f) * cellSize;
 
-        localPosition.x = surface.LocalGridOrigin.x +
-                          (cellX + objectCellsX * 0.5f) * cellSize;
-
-        localPosition.z = surface.LocalGridOrigin.z +
-                          (cellZ + objectCellsZ * 0.5f) * cellSize;
-
-        return surface.transform.TransformPoint(localPosition);
+        return surface.transform.TransformPoint(local);
     }
 
     private void OnDestroy()
     {
-        foreach (List<LineRenderer> gridLines in surfaceGrids.Values)
-        {
-            foreach (LineRenderer line in gridLines)
-            {
+        foreach (List<LineRenderer> lines in surfaceGrids.Values)
+            foreach (LineRenderer line in lines)
                 if (line != null)
                     Destroy(line.gameObject);
-            }
-        }
 
         surfaceGrids.Clear();
 
