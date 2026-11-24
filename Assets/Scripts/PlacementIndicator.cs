@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlacementPreview : MonoBehaviour
+public class PlacementIndicator : MonoBehaviour
 {
     [Header("Preview")]
     [SerializeField] private Material validMaterial, invalidMaterial;
@@ -43,9 +43,10 @@ public class PlacementPreview : MonoBehaviour
             SetPlacementValidity(false);
             return;
         }
+
         //Allows objects to be placed on the ground layer and on other placed objects
         bool isGround = IsInLayerMask(hit.collider.gameObject, groundLayer);
-        bool isPlacedBlock = hit.collider.GetComponentInParent<PlaceBlockMarker>() != null;
+        bool isPlacedBlock = hit.collider.GetComponentInParent<BlockMarker>() != null;
         BuildSurface surface = hit.collider.GetComponentInParent<BuildSurface>();
         if (surface == null)
             previewObject.transform.SetPositionAndRotation(hit.point, previewSource.transform.rotation);
@@ -56,6 +57,7 @@ public class PlacementPreview : MonoBehaviour
             previewObject.transform.SetPositionAndRotation(hit.point,
                 surface.transform.rotation * previewSource.transform.localRotation);
         }
+
         Renderer[] renderers = GetPreviewRenderers(out Bounds bounds);
         if (surface == null)
         {
@@ -64,10 +66,12 @@ public class PlacementPreview : MonoBehaviour
             SetPlacementValidity(isGround || isPlacedBlock);
             return;
         }
+
         //Calculates the footprint size of the object in local grid coordinates
         Vector2 footprint = GetPreviewFootprint(surface, renderers);
         Vector3 position = gridRenderer != null ? gridRenderer.SnapPosition(hit.point, surface, footprint) : hit.point;
         previewObject.transform.position = position;
+
         //Places the object on top of the selected surface
         if (renderers.Length > 0)
         {

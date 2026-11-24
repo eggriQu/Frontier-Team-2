@@ -1,17 +1,17 @@
 using UnityEngine;
 
-public class PlaceBlockSelection : MonoBehaviour
+public class BlockSelection : MonoBehaviour
 {
     [Header("Object Selection")]
     [SerializeField] private float doubleClickTime = 0.3f;
     [SerializeField] private Material outlineMaterial;
 
-    private PlaceBlockMarker selectedObject;
-    private PlaceBlockMarker lastClickedObject;
+    private BlockMarker selectedObject;
+    private BlockMarker lastClickedObject;
     private float lastClickTime;
 
     //Checks whether an object has been selected
-    public PlaceBlockMarker HandleObjectSelection(Camera buildCamera, float rayDistance)
+    public BlockMarker HandleObjectSelection(Camera buildCamera, float rayDistance)
     {
         if (buildCamera == null ||
             !Physics.Raycast(buildCamera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, rayDistance))
@@ -20,7 +20,7 @@ public class PlaceBlockSelection : MonoBehaviour
             return null;
         }
 
-        PlaceBlockMarker clickedObject = hit.collider.GetComponentInParent<PlaceBlockMarker>();
+        BlockMarker clickedObject = hit.collider.GetComponentInParent<BlockMarker>();
 
         if (clickedObject == null)
         {
@@ -55,7 +55,7 @@ public class PlaceBlockSelection : MonoBehaviour
     }
 
     //Updates the selected object
-    public void SetSelectedObject(PlaceBlockMarker marker)
+    public void SetSelectedObject(BlockMarker marker)
     {
         if (selectedObject != null)
         {

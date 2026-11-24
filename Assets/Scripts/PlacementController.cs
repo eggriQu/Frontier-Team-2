@@ -9,8 +9,8 @@ public class PlacementController : MonoBehaviour
     [SerializeField] private Camera buildCamera;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private GridRenderer gridRenderer;
-    [SerializeField] private PlacementPreview placementPreview;
-    [SerializeField] private PlaceBlockSelection placeBlockSelection;
+    [SerializeField] private PlacementIndicator placementPreview;
+    [SerializeField] private BlockSelection placeBlockSelection;
     [Header("Placement")]
     [SerializeField] private float rayDistance = 1000f;
     private GameObject selectedPrefab, movingObject;
@@ -55,13 +55,13 @@ public class PlacementController : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0) && !overButton)
         {
-            PlaceBlockMarker marker = placeBlockSelection.HandleObjectSelection(buildCamera, rayDistance);
+            BlockMarker marker = placeBlockSelection.HandleObjectSelection(buildCamera, rayDistance);
             if (marker != null) StartMovingObject(marker);
         }
     }
 
     //Allows a selected object to be moved again
-    private void StartMovingObject(PlaceBlockMarker marker)
+    private void StartMovingObject(BlockMarker marker)
     {
         movingObject = marker.gameObject;
         selectedPrefab = movingObject;
@@ -80,16 +80,15 @@ public class PlacementController : MonoBehaviour
         {
             movingObject.transform.SetPositionAndRotation(preview.transform.position, preview.transform.rotation);
             movingObject.SetActive(true);
-            PlaceBlockMarker marker = movingObject.GetComponent<PlaceBlockMarker>();
+            BlockMarker marker = movingObject.GetComponent<BlockMarker>();
             placementPreview.DestroyPreview();
             movingObject = selectedPrefab = null;
             gridRenderer?.SetGridVisibility(false);
             placeBlockSelection.SetSelectedObject(marker);
-            Debug.Log("Object movement confirmed.");
             return;
         }
         GameObject placed = Instantiate(selectedPrefab, preview.transform.position, preview.transform.rotation);
-        if (placed.GetComponent<PlaceBlockMarker>() == null) placed.AddComponent<PlaceBlockMarker>();
+        if (placed.GetComponent<BlockMarker>() == null) placed.AddComponent<BlockMarker>();
         Debug.Log("Placed " + selectedPrefab.name + " at " + placed.transform.position);
         CancelPlacement();
     }
