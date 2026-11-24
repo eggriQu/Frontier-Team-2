@@ -68,7 +68,7 @@ public class PlacementController : MonoBehaviour
         placementPreview.CreatePreview(movingObject);
         movingObject.SetActive(false);
         gridRenderer?.SetGridVisibility(true);
-        Debug.Log("Moving object: " + movingObject.name);
+        Debug.Log("Moving: " + movingObject.name);
     }
 
     //Object placement
@@ -85,6 +85,7 @@ public class PlacementController : MonoBehaviour
             movingObject = selectedPrefab = null;
             gridRenderer?.SetGridVisibility(false);
             placeBlockSelection.SetSelectedObject(marker);
+            Debug.Log("Moved: " + movingObject.name);
             return;
         }
         GameObject placed = Instantiate(selectedPrefab, preview.transform.position, preview.transform.rotation);
