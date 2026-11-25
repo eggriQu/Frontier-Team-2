@@ -12,6 +12,7 @@ public class ObjectOutline : MonoBehaviour
         if (outline == null)
             outline = gameObject.AddComponent<LineRenderer>();
 
+        //Create the outline material
         outline.useWorldSpace = true;
         outline.loop = false;
         outline.positionCount = 16;
@@ -75,6 +76,7 @@ public class ObjectOutline : MonoBehaviour
         if (!hasBounds)
             return;
 
+        //Calculate the corners of the object
         Vector3 min = bounds.min;
         Vector3 max = bounds.max;
 
