@@ -47,7 +47,32 @@ public class KeyboardShortcuts : MonoBehaviour
 
         lastMousePosition = Input.mousePosition;
 
-        //Keep track of the currently selected button
+        //Opens the selected tab using number keys
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+        {
+            SelectButtonShortcut(0);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+        {
+            SelectButtonShortcut(1);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+        {
+            SelectButtonShortcut(2);
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+        {
+            SelectButtonShortcut(3);
+            return;
+        }
+
+        //Keeps track of the selected button
         for (int i = 0; i < buttons.Length; i++)
         {
             if (buttons[i] != null &&
@@ -58,14 +83,14 @@ public class KeyboardShortcuts : MonoBehaviour
             }
         }
 
-        //Move selection up
+        //Move the button selection up
         if (Input.GetKeyDown(KeyCode.W))
         {
             KeyboardNavigationActive = true;
             MoveSelection(-1);
         }
 
-        //Move selection down
+        //Move the button selection down
         if (Input.GetKeyDown(KeyCode.S))
         {
             KeyboardNavigationActive = true;
@@ -82,6 +107,21 @@ public class KeyboardShortcuts : MonoBehaviour
                 buttons[selectedIndex].onClick.Invoke();
             }
         }
+    }
+
+    //Select a button using its shortcut
+    private void SelectButtonShortcut(int index)
+    {
+        if (index >= buttons.Length ||
+            buttons[index] == null ||
+            !buttons[index].interactable)
+        {
+            return;
+        }
+
+        KeyboardNavigationActive = true;
+        SelectButton(index);
+        buttons[index].onClick.Invoke();
     }
 
     //Move through the buttons

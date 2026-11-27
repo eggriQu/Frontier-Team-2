@@ -1,14 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BlockSelection : MonoBehaviour
 {
     [Header("Object Selection")]
     [SerializeField] private float doubleClickTime = 0.3f;
-    [SerializeField] private Material outlineMaterial;
+    [SerializeField] private Material blockSelectionMaterial;
 
     private BlockMarker selectedObject;
     private BlockMarker lastClickedObject;
     private float lastClickTime;
+
+    private readonly Dictionary<Renderer, Material[]> originalMaterials = new Dictionary<Renderer, Material[]>();
 
     //Checks whether an object has been selected
     public BlockMarker HandleObjectSelection(Camera buildCamera, float rayDistance)
@@ -28,10 +31,10 @@ public class BlockSelection : MonoBehaviour
             return null;
         }
 
-        //Checks whether the same object has been double-clicked
+        //Checks whether the same object has been double-clicked on
         if (clickedObject == lastClickedObject && Time.time - lastClickTime <= doubleClickTime)
         {
-            selectedObject = clickedObject;
+            SetSelectedObject(clickedObject);
             lastClickedObject = null;
             return clickedObject;
         }
@@ -50,6 +53,7 @@ public class BlockSelection : MonoBehaviour
         if (selectedObject == null) return;
 
         Debug.Log("Removed placed object: " + selectedObject.name);
+        RestoreOriginalMaterials();
         Destroy(selectedObject.gameObject);
         ClearSelection();
     }
@@ -57,40 +61,48 @@ public class BlockSelection : MonoBehaviour
     //Updates the selected object
     public void SetSelectedObject(BlockMarker marker)
     {
-        if (selectedObject != null)
-        {
-            ObjectOutline previous = selectedObject.GetComponent<ObjectOutline>();
-            if (previous != null)
-                previous.ShowOutline(false);
-        }
+        RestoreOriginalMaterials();
 
         selectedObject = marker;
 
         if (selectedObject != null)
         {
-            ObjectOutline outline = selectedObject.GetComponent<ObjectOutline>();
+            //Applies the yellow selection material
+            if (blockSelectionMaterial != null)
+            {
+                foreach (Renderer renderer in selectedObject.GetComponentsInChildren<Renderer>())
+                {
+                    originalMaterials[renderer] = renderer.sharedMaterials;
 
-            if (outline == null)
-                outline = selectedObject.gameObject.AddComponent<ObjectOutline>();
+                    Material[] materials = renderer.sharedMaterials;
 
-            outline.SetMaterial(outlineMaterial);
-            outline.ShowOutline(true);
+                    for (int i = 0; i < materials.Length; i++)
+                        materials[i] = blockSelectionMaterial;
+
+                    renderer.sharedMaterials = materials;
+                }
+            }
         }
 
         lastClickedObject = null;
     }
 
+    //Restores the original object materials
+    private void RestoreOriginalMaterials()
+    {
+        foreach (KeyValuePair<Renderer, Material[]> entry in originalMaterials)
+        {
+            if (entry.Key != null)
+                entry.Key.sharedMaterials = entry.Value;
+        }
+
+        originalMaterials.Clear();
+    }
+
     //Clears the selected object
     public void ClearSelection()
     {
-        if (selectedObject != null)
-        {
-            ObjectOutline outline = selectedObject.GetComponent<ObjectOutline>();
-
-            if (outline != null)
-                outline.ShowOutline(false);
-        }
-
+        RestoreOriginalMaterials();
         selectedObject = lastClickedObject = null;
     }
 }

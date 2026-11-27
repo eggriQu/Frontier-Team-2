@@ -20,15 +20,10 @@ public class PlacementIndicator : MonoBehaviour
         previewObject = Instantiate(prefab);
         previewObject.name = prefab.name + " Preview";
 
-        //Removes the object outline and disables colliders on the preview object
-        foreach (ObjectOutline objectOutline in previewObject.GetComponentsInChildren<ObjectOutline>())
-        {
-            objectOutline.RemoveOutline();
-            Destroy(objectOutline);
-        }
-
         foreach (Collider col in previewObject.GetComponentsInChildren<Collider>())
+        {
             col.enabled = false;
+        }
 
         SetPlacementValidity(false);
     }
